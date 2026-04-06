@@ -29,7 +29,7 @@ function App() {
       return;
     }
     try {
-      const me = await api.usersRoutesMe();
+      const me = await api.osolotServerRoutesMe();
       setUser(me);
       setEditName(me.name);
     } catch {
@@ -48,7 +48,7 @@ function App() {
     e.preventDefault();
     setError(null);
     try {
-      const tokens = await api.usersRoutesLogin({
+      const tokens = await api.osolotServerRoutesLogin({
         username: loginUser,
         password: loginPass,
       });
@@ -63,7 +63,7 @@ function App() {
     e.preventDefault();
     setError(null);
     try {
-      const tokens = await api.usersRoutesRegister({
+      const tokens = await api.osolotServerRoutesRegister({
         username: regUser,
         password: regPass,
         email: regEmail || null,
@@ -81,7 +81,7 @@ function App() {
     if (!user) return;
     setError(null);
     try {
-      const updated = await api.usersRoutesUpdateMe({ name: editName });
+      const updated = await api.osolotServerRoutesUpdateMe({ name: editName });
       setUser(updated);
     } catch {
       setError("Could not update profile.");

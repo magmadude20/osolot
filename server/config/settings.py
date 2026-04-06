@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
-    "users",
+    "osolot_server",
 ]
 
 MIDDLEWARE = [
@@ -66,12 +66,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-DATABASES = {
-    "default": {
+def _database_config() -> dict:
+    backend = os.environ.get("DATABASE_BACKEND", "sqlite").lower()
+    if backend in ("postgres", "postgresql"):
+        cfg: dict = {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ["POSTGRES_DB"],
+            "USER": os.environ.get("POSTGRES_USER", "postgres"),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),
+            "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+            "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+        }
+        sslmode = os.environ.get("POSTGRES_SSLMODE")
+        if sslmode:
+            cfg["OPTIONS"] = {"sslmode": sslmode}
+        return cfg
+    return {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
-}
+
+
+DATABASES = {"default": _database_config()}
+
+AUTH_USER_MODEL = "osolot_server.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -87,8 +105,6 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (

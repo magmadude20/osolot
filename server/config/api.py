@@ -1,11 +1,11 @@
 from ninja import NinjaAPI
 
-from users.routes import auth_router, users_router
+from osolot_server.routes import auth_router, users_router
 
 api = NinjaAPI(
     title="Osolot API",
-    version="1.0.0",
-    description="Account and profile endpoints (JWT).",
+    version="0.0.1",
+    description="API for managing decentralized libraries of things.",
     urls_namespace="api",
 )
 

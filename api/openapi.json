@@ -2,13 +2,13 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Osolot API",
-    "version": "1.0.0",
-    "description": "Account and profile endpoints (JWT)."
+    "version": "0.0.1",
+    "description": "API for managing decentralized libraries of things."
   },
   "paths": {
     "/api/auth/register": {
       "post": {
-        "operationId": "users_routes_register",
+        "operationId": "osolot_server_routes_register",
         "summary": "Register",
         "parameters": [],
         "responses": {
@@ -40,7 +40,7 @@
     },
     "/api/auth/login": {
       "post": {
-        "operationId": "users_routes_login",
+        "operationId": "osolot_server_routes_login",
         "summary": "Login",
         "parameters": [],
         "responses": {
@@ -72,7 +72,7 @@
     },
     "/api/auth/refresh": {
       "post": {
-        "operationId": "users_routes_refresh",
+        "operationId": "osolot_server_routes_refresh",
         "summary": "Refresh",
         "parameters": [],
         "responses": {
@@ -104,7 +104,7 @@
     },
     "/api/users/me": {
       "get": {
-        "operationId": "users_routes_me",
+        "operationId": "osolot_server_routes_me",
         "summary": "Me",
         "parameters": [],
         "responses": {
@@ -129,7 +129,7 @@
         ]
       },
       "patch": {
-        "operationId": "users_routes_update_me",
+        "operationId": "osolot_server_routes_update_me",
         "summary": "Update Me",
         "parameters": [],
         "responses": {

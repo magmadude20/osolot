@@ -42,7 +42,7 @@ jobs:
           exported = json.loads(pathlib.Path("/tmp/openapi-ci.json").read_text())
           if committed != exported:
               print(
-                  "api/openapi.json is out of date. Run: ./scripts/export-openapi.sh",
+                  "api/openapi.json is out of date. Run: ./scripts/update_stack.sh",
                   file=sys.stderr,
               )
               sys.exit(1)
