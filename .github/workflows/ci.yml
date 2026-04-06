@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: server/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r server/requirements.txt
+
+      - name: Django system check
+        run: python server/manage.py check
+
+      - name: Migrate (SQLite)
+        run: python server/manage.py migrate --noinput
+
+      - name: api/openapi.json matches export
+        run: |
+          python server/manage.py export_openapi_schema \
+            --api config.api.api \
+            --output /tmp/openapi-ci.json \
+            --indent 2
+          python - <<'PY'
+          import json
+          import pathlib
+          import sys
+
+          root = pathlib.Path.cwd()
+          committed = json.loads((root / "api" / "openapi.json").read_text())
+          exported = json.loads(pathlib.Path("/tmp/openapi-ci.json").read_text())
+          if committed != exported:
+              print(
+                  "api/openapi.json is out of date. Run: ./scripts/export-openapi.sh",
+                  file=sys.stderr,
+              )
+              sys.exit(1)
+          PY
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: ESLint
+        working-directory: client
+        run: npm run lint
+
+      - name: Orval codegen matches committed client
+        working-directory: client
+        run: |
+          npm run codegen
+          git diff --exit-code -- src/api/generated.ts
+
+      - name: Production build
+        working-directory: client
+        run: npm run build
