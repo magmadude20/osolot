@@ -8,7 +8,7 @@
   "paths": {
     "/api/auth/register": {
       "post": {
-        "operationId": "osolot_server_api_auth_routes_register",
+        "operationId": "osolot_server_api_auth_register",
         "summary": "Register",
         "parameters": [],
         "responses": {
@@ -40,7 +40,7 @@
     },
     "/api/auth/login": {
       "post": {
-        "operationId": "osolot_server_api_auth_routes_login",
+        "operationId": "osolot_server_api_auth_login",
         "summary": "Login",
         "parameters": [],
         "responses": {
@@ -72,7 +72,7 @@
     },
     "/api/auth/refresh": {
       "post": {
-        "operationId": "osolot_server_api_auth_routes_refresh",
+        "operationId": "osolot_server_api_auth_refresh",
         "summary": "Refresh",
         "parameters": [],
         "responses": {
@@ -104,7 +104,7 @@
     },
     "/api/auth/password-reset/request": {
       "post": {
-        "operationId": "osolot_server_api_auth_routes_password_reset_request",
+        "operationId": "osolot_server_api_auth_password_reset_request",
         "summary": "Password Reset Request",
         "parameters": [],
         "responses": {
@@ -136,7 +136,7 @@
     },
     "/api/auth/password-reset/confirm": {
       "post": {
-        "operationId": "osolot_server_api_auth_routes_password_reset_confirm",
+        "operationId": "osolot_server_api_auth_password_reset_confirm",
         "summary": "Password Reset Confirm",
         "parameters": [],
         "responses": {
@@ -168,7 +168,7 @@
     },
     "/api/auth/verify-email/request": {
       "post": {
-        "operationId": "osolot_server_api_auth_routes_email_verification_request",
+        "operationId": "osolot_server_api_auth_email_verification_request",
         "summary": "Email Verification Request",
         "parameters": [],
         "responses": {
@@ -205,7 +205,7 @@
     },
     "/api/auth/verify-email/confirm": {
       "post": {
-        "operationId": "osolot_server_api_auth_routes_email_verification_confirm",
+        "operationId": "osolot_server_api_auth_email_verification_confirm",
         "summary": "Email Verification Confirm",
         "parameters": [],
         "responses": {
@@ -237,7 +237,7 @@
     },
     "/api/users/me": {
       "get": {
-        "operationId": "osolot_server_api_user_routes_me",
+        "operationId": "osolot_server_api_users_me",
         "summary": "Me",
         "parameters": [],
         "responses": {
@@ -246,7 +246,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserOut"
+                  "$ref": "#/components/schemas/UserProfile"
                 }
               }
             }
@@ -262,7 +262,7 @@
         ]
       },
       "patch": {
-        "operationId": "osolot_server_api_user_routes_update_me",
+        "operationId": "osolot_server_api_users_update_me",
         "summary": "Update Me",
         "parameters": [],
         "responses": {
@@ -271,7 +271,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserOut"
+                  "$ref": "#/components/schemas/UserProfile"
                 }
               }
             }
@@ -284,12 +284,438 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserUpdateIn"
+                "$ref": "#/components/schemas/UpdateProfileRequest"
               }
             }
           },
           "required": true
         },
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      }
+    },
+    "/api/collectives/": {
+      "get": {
+        "operationId": "osolot_server_api_collectives_list_public_collectives",
+        "summary": "List Public Collectives",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CollectiveSummary"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "collectives"
+        ]
+      },
+      "post": {
+        "operationId": "osolot_server_api_collectives_create_collective",
+        "summary": "Create Collective",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectiveDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "collectives"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectiveSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      }
+    },
+    "/api/collectives/mine": {
+      "get": {
+        "operationId": "osolot_server_api_collectives_list_my_collectives",
+        "summary": "List My Collectives",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CollectiveSummary"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "collectives"
+        ],
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      }
+    },
+    "/api/collectives/{collective_id}": {
+      "get": {
+        "operationId": "osolot_server_api_collectives_get_collective",
+        "summary": "Get Collective",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collective_id",
+            "schema": {
+              "title": "Collective Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectiveDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "collectives"
+        ]
+      },
+      "put": {
+        "operationId": "osolot_server_api_collectives_update_collective",
+        "summary": "Update Collective",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collective_id",
+            "schema": {
+              "title": "Collective Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectiveDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "collectives"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectiveSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "osolot_server_api_collectives_delete_collective",
+        "summary": "Delete Collective",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collective_id",
+            "schema": {
+              "title": "Collective Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "collectives"
+        ],
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      }
+    },
+    "/api/collectives/{collective_id}/members": {
+      "get": {
+        "operationId": "osolot_server_api_collective_memberships_list_memberships",
+        "summary": "List Memberships",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collective_id",
+            "schema": {
+              "title": "Collective Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MembershipSummary"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "memberships"
+        ]
+      }
+    },
+    "/api/collectives/{collective_id}/join": {
+      "post": {
+        "operationId": "osolot_server_api_collective_memberships_join_collective",
+        "summary": "Join Collective",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collective_id",
+            "schema": {
+              "title": "Collective Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MembershipDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "memberships"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinCollectiveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      }
+    },
+    "/api/collectives/{collective_id}/membership/{user_id}": {
+      "get": {
+        "operationId": "osolot_server_api_collective_memberships_get_membership",
+        "summary": "Get Membership",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collective_id",
+            "schema": {
+              "title": "Collective Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "user_id",
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MembershipDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "memberships"
+        ]
+      },
+      "put": {
+        "operationId": "osolot_server_api_collective_memberships_update_membership",
+        "summary": "Update Membership",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collective_id",
+            "schema": {
+              "title": "Collective Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "user_id",
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MembershipDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "memberships"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMembershipRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "osolot_server_api_collective_memberships_delete_membership",
+        "summary": "Delete Membership",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collective_id",
+            "schema": {
+              "title": "Collective Id",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "user_id",
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "memberships"
+        ],
         "security": [
           {
             "JWTAuth": []
@@ -486,7 +912,7 @@
         "title": "VerifyEmailConfirmIn",
         "type": "object"
       },
-      "UserOut": {
+      "UserProfile": {
         "properties": {
           "id": {
             "title": "Id",
@@ -516,10 +942,10 @@
           "first_name",
           "last_name"
         ],
-        "title": "UserOut",
+        "title": "UserProfile",
         "type": "object"
       },
-      "UserUpdateIn": {
+      "UpdateProfileRequest": {
         "properties": {
           "first_name": {
             "anyOf": [
@@ -546,7 +972,245 @@
             "title": "Last Name"
           }
         },
-        "title": "UserUpdateIn",
+        "title": "UpdateProfileRequest",
+        "type": "object"
+      },
+      "CollectiveSummary": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "visibility": {
+            "title": "Visibility",
+            "type": "string"
+          },
+          "admission_type": {
+            "title": "Admission Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "visibility",
+          "admission_type"
+        ],
+        "title": "CollectiveSummary",
+        "type": "object"
+      },
+      "CollectiveDetail": {
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/CollectiveSummary"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/MembershipSummary"
+            },
+            "title": "Members",
+            "type": "array"
+          },
+          "application_question": {
+            "title": "Application Question",
+            "type": "string"
+          }
+        },
+        "required": [
+          "summary",
+          "members",
+          "application_question"
+        ],
+        "title": "CollectiveDetail",
+        "type": "object"
+      },
+      "MembershipSummary": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserSummary"
+          },
+          "collective": {
+            "$ref": "#/components/schemas/CollectiveSummary"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user",
+          "collective",
+          "status",
+          "role"
+        ],
+        "title": "MembershipSummary",
+        "type": "object"
+      },
+      "UserSummary": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "first_name": {
+            "title": "First Name",
+            "type": "string"
+          },
+          "last_name": {
+            "title": "Last Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "first_name",
+          "last_name"
+        ],
+        "title": "UserSummary",
+        "type": "object"
+      },
+      "CollectiveSettings": {
+        "properties": {
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 100000,
+            "title": "Description",
+            "type": "string"
+          },
+          "visibility": {
+            "default": "private",
+            "maxLength": 31,
+            "title": "Visibility",
+            "type": "string"
+          },
+          "admission_type": {
+            "default": "open",
+            "maxLength": 31,
+            "title": "Admission Type",
+            "type": "string"
+          },
+          "application_question": {
+            "default": "",
+            "maxLength": 100000,
+            "title": "Application Question",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "CollectiveSettings",
+        "type": "object"
+      },
+      "MembershipDetail": {
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/MembershipSummary"
+          },
+          "application_message": {
+            "title": "Application Message",
+            "type": "string"
+          },
+          "applied_at": {
+            "title": "Applied At",
+            "type": "string"
+          },
+          "joined_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joined At"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "summary",
+          "application_message",
+          "applied_at",
+          "updated_at"
+        ],
+        "title": "MembershipDetail",
+        "type": "object"
+      },
+      "JoinCollectiveRequest": {
+        "properties": {
+          "application_message": {
+            "default": "",
+            "maxLength": 100000,
+            "title": "Application Message",
+            "type": "string"
+          }
+        },
+        "title": "JoinCollectiveRequest",
+        "type": "object"
+      },
+      "UpdateMembershipRequest": {
+        "properties": {
+          "application_message": {
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Application Message"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "maxLength": 31,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "maxLength": 31,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          }
+        },
+        "title": "UpdateMembershipRequest",
         "type": "object"
       }
     },

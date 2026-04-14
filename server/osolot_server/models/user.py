@@ -6,7 +6,7 @@ class User(AbstractUser):
     # allow username to be blank
     username = models.CharField(max_length=150, unique=True, blank=True)
 
-    # email is unique, and will be used as/instead of username. 
+    # email is unique, and will be used as/instead of username.
     email = models.EmailField(unique=True)
     email_verified = models.BooleanField(default=False)
     USERNAME_FIELD = "email"

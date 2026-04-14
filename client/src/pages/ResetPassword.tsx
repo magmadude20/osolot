@@ -22,7 +22,7 @@ export default function ResetPassword() {
       return;
     }
     try {
-      const res = await api.osolotServerApiAuthRoutesPasswordResetConfirm({
+      const res = await api.osolotServerApiAuthPasswordResetConfirm({
         uid,
         token,
         new_password: password,
@@ -38,7 +38,7 @@ export default function ResetPassword() {
       <div className="page">
         <p className="muted">{message}</p>
         <p>
-          <Link to="/" className="btn">
+          <Link to="/login" className="btn">
             Log in
           </Link>
         </p>
@@ -50,7 +50,7 @@ export default function ResetPassword() {
     <div className="page">
       <header className="header">
         <h1>Choose a new password</h1>
-        <Link to="/" className="link">
+        <Link to="/login" className="link">
           Back to login
         </Link>
       </header>

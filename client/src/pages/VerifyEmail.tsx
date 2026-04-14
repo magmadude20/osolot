@@ -28,7 +28,7 @@ export default function VerifyEmail() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await api.osolotServerApiAuthRoutesEmailVerificationConfirm({
+        const res = await api.osolotServerApiAuthEmailVerificationConfirm({
           uid,
           token,
         });

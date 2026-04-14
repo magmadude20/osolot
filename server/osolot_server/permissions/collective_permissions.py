@@ -1,0 +1,71 @@
+from ..models import Collective, Membership, User
+
+from django.db.models import Q, QuerySet
+
+
+# Admins can manage collective member roles
+def can_manage_member_roles(membership: Membership) -> bool:
+    return (
+        membership.status == Membership.Status.ACTIVE
+        and membership.role == Membership.Role.ADMIN
+    )
+
+
+# Active admins and moderators can manage collective members
+def membership_can_manage_members(membership: Membership | None) -> bool:
+    if membership is None:
+        return False
+    return membership.status == Membership.Status.ACTIVE and membership.role in (
+        Membership.Role.ADMIN,
+        Membership.Role.MODERATOR,
+    )
+
+
+def can_manage_memberships(user: User, collective: Collective) -> bool:
+    return membership_can_manage_members(Membership.find_for(user, collective))
+
+
+# Collective visibility:
+# Private collectives can only be seen by members (including pending members)
+# If you can see a collective, you can see its *active* members
+# Pending members can only be seen by admin/moderator AND the pending user themself
+def can_view_collective(user: User | None, collective: Collective) -> bool:
+    if collective.visibility == Collective.Visibility.PUBLIC:
+        return True
+    if user is None:
+        return False
+    membership = Membership.find_for(user, collective)
+    return membership is not None and membership.status in (
+        Membership.Status.ACTIVE,
+        Membership.Status.PENDING,
+    )
+
+
+# Collective member visibility:
+# Admins and mods can see all members
+# Members can see other active members, and thier own membership (which may be pending)
+# Anyone can see public collectives active users
+# Only members can see a private collectives members
+def user_visible_collective_members(
+    viewer: User | None, collective: Collective
+) -> QuerySet[Membership]:
+    collective_members = Membership.objects.for_collective(collective).select_related(
+        "user", "collective"
+    )
+
+    viewer_membership = Membership.find_for(viewer, collective)
+    if viewer_membership is not None:
+        if membership_can_manage_members(viewer_membership):
+            # Admins/moderators can see all members
+            return collective_members
+
+        # Regular members can see themselves and active members
+        return collective_members.filter(
+            Q(status=Membership.Status.ACTIVE) | Q(user=viewer)
+        )
+
+    # Viewer is NOT a member of the collective...
+    if collective.visibility == Collective.Visibility.PRIVATE:
+        return Membership.objects.none()
+    # Show active members of public collectives.
+    return collective_members.filter(status=Membership.Status.ACTIVE)

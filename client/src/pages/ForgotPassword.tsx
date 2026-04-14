@@ -14,7 +14,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError(null);
     try {
-      const res = await api.osolotServerApiAuthRoutesPasswordResetRequest({
+      const res = await api.osolotServerApiAuthPasswordResetRequest({
         email,
       });
       setMessage(res.message);
@@ -27,7 +27,7 @@ export default function ForgotPassword() {
     <div className="page">
       <header className="header">
         <h1>Reset password</h1>
-        <Link to="/" className="link">
+        <Link to="/login" className="link">
           Back to login
         </Link>
       </header>

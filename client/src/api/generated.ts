@@ -6,16 +6,86 @@
  * OpenAPI spec version: 0.0.1
  */
 import { customInstance } from './axios-instance';
-export type UserUpdateInLastName = string | null;
+export type UpdateMembershipRequestStatus = string | null;
 
-export type UserUpdateInFirstName = string | null;
+export type UpdateMembershipRequestRole = string | null;
 
-export interface UserUpdateIn {
-  first_name?: UserUpdateInFirstName;
-  last_name?: UserUpdateInLastName;
+export type UpdateMembershipRequestApplicationMessage = string | null;
+
+export interface UpdateMembershipRequest {
+  application_message?: UpdateMembershipRequestApplicationMessage;
+  role?: UpdateMembershipRequestRole;
+  status?: UpdateMembershipRequestStatus;
 }
 
-export interface UserOut {
+export interface JoinCollectiveRequest {
+  /** @maxLength 100000 */
+  application_message?: string;
+}
+
+export type MembershipDetailJoinedAt = string | null;
+
+export interface MembershipDetail {
+  application_message: string;
+  applied_at: string;
+  joined_at?: MembershipDetailJoinedAt;
+  summary: MembershipSummary;
+  updated_at: string;
+}
+
+export interface CollectiveSettings {
+  /** @maxLength 31 */
+  admission_type?: string;
+  /** @maxLength 100000 */
+  application_question?: string;
+  /** @maxLength 100000 */
+  description?: string;
+  /**
+   * @minLength 1
+   * @maxLength 255
+   */
+  name: string;
+  /** @maxLength 31 */
+  visibility?: string;
+}
+
+export interface UserSummary {
+  first_name: string;
+  id: number;
+  last_name: string;
+}
+
+export interface CollectiveSummary {
+  admission_type: string;
+  description: string;
+  id: number;
+  name: string;
+  visibility: string;
+}
+
+export interface MembershipSummary {
+  collective: CollectiveSummary;
+  role: string;
+  status: string;
+  user: UserSummary;
+}
+
+export interface CollectiveDetail {
+  application_question: string;
+  members: MembershipSummary[];
+  summary: CollectiveSummary;
+}
+
+export type UpdateProfileRequestLastName = string | null;
+
+export type UpdateProfileRequestFirstName = string | null;
+
+export interface UpdateProfileRequest {
+  first_name?: UpdateProfileRequestFirstName;
+  last_name?: UpdateProfileRequestLastName;
+}
+
+export interface UserProfile {
   email: string;
   email_verified: boolean;
   first_name: string;
@@ -103,7 +173,7 @@ export interface TokenPairOut {
 /**
  * @summary Register
  */
-const osolotServerApiAuthRoutesRegister = (
+const osolotServerApiAuthRegister = (
     registerIn: RegisterIn,
  ) => {
       return customInstance<TokenPairOut>(
@@ -117,7 +187,7 @@ const osolotServerApiAuthRoutesRegister = (
 /**
  * @summary Login
  */
-const osolotServerApiAuthRoutesLogin = (
+const osolotServerApiAuthLogin = (
     loginIn: LoginIn,
  ) => {
       return customInstance<TokenPairOut>(
@@ -131,7 +201,7 @@ const osolotServerApiAuthRoutesLogin = (
 /**
  * @summary Refresh
  */
-const osolotServerApiAuthRoutesRefresh = (
+const osolotServerApiAuthRefresh = (
     refreshIn: RefreshIn,
  ) => {
       return customInstance<AccessTokenOut>(
@@ -145,7 +215,7 @@ const osolotServerApiAuthRoutesRefresh = (
 /**
  * @summary Password Reset Request
  */
-const osolotServerApiAuthRoutesPasswordResetRequest = (
+const osolotServerApiAuthPasswordResetRequest = (
     passwordResetRequestIn: PasswordResetRequestIn,
  ) => {
       return customInstance<MessageOut>(
@@ -159,7 +229,7 @@ const osolotServerApiAuthRoutesPasswordResetRequest = (
 /**
  * @summary Password Reset Confirm
  */
-const osolotServerApiAuthRoutesPasswordResetConfirm = (
+const osolotServerApiAuthPasswordResetConfirm = (
     passwordResetConfirmIn: PasswordResetConfirmIn,
  ) => {
       return customInstance<MessageOut>(
@@ -173,7 +243,7 @@ const osolotServerApiAuthRoutesPasswordResetConfirm = (
 /**
  * @summary Email Verification Request
  */
-const osolotServerApiAuthRoutesEmailVerificationRequest = (
+const osolotServerApiAuthEmailVerificationRequest = (
     verifyEmailRequestIn: VerifyEmailRequestIn,
  ) => {
       return customInstance<MessageOut>(
@@ -187,7 +257,7 @@ const osolotServerApiAuthRoutesEmailVerificationRequest = (
 /**
  * @summary Email Verification Confirm
  */
-const osolotServerApiAuthRoutesEmailVerificationConfirm = (
+const osolotServerApiAuthEmailVerificationConfirm = (
     verifyEmailConfirmIn: VerifyEmailConfirmIn,
  ) => {
       return customInstance<MessageOut>(
@@ -201,10 +271,10 @@ const osolotServerApiAuthRoutesEmailVerificationConfirm = (
 /**
  * @summary Me
  */
-const osolotServerApiUserRoutesMe = (
+const osolotServerApiUsersMe = (
     
  ) => {
-      return customInstance<UserOut>(
+      return customInstance<UserProfile>(
       {url: `/api/users/me`, method: 'GET'
     },
       );
@@ -213,24 +283,181 @@ const osolotServerApiUserRoutesMe = (
 /**
  * @summary Update Me
  */
-const osolotServerApiUserRoutesUpdateMe = (
-    userUpdateIn: UserUpdateIn,
+const osolotServerApiUsersUpdateMe = (
+    updateProfileRequest: UpdateProfileRequest,
  ) => {
-      return customInstance<UserOut>(
+      return customInstance<UserProfile>(
       {url: `/api/users/me`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
-      data: userUpdateIn
+      data: updateProfileRequest
     },
       );
     }
   
-return {osolotServerApiAuthRoutesRegister,osolotServerApiAuthRoutesLogin,osolotServerApiAuthRoutesRefresh,osolotServerApiAuthRoutesPasswordResetRequest,osolotServerApiAuthRoutesPasswordResetConfirm,osolotServerApiAuthRoutesEmailVerificationRequest,osolotServerApiAuthRoutesEmailVerificationConfirm,osolotServerApiUserRoutesMe,osolotServerApiUserRoutesUpdateMe}};
-export type OsolotServerApiAuthRoutesRegisterResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthRoutesRegister']>>>
-export type OsolotServerApiAuthRoutesLoginResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthRoutesLogin']>>>
-export type OsolotServerApiAuthRoutesRefreshResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthRoutesRefresh']>>>
-export type OsolotServerApiAuthRoutesPasswordResetRequestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthRoutesPasswordResetRequest']>>>
-export type OsolotServerApiAuthRoutesPasswordResetConfirmResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthRoutesPasswordResetConfirm']>>>
-export type OsolotServerApiAuthRoutesEmailVerificationRequestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthRoutesEmailVerificationRequest']>>>
-export type OsolotServerApiAuthRoutesEmailVerificationConfirmResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthRoutesEmailVerificationConfirm']>>>
-export type OsolotServerApiUserRoutesMeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiUserRoutesMe']>>>
-export type OsolotServerApiUserRoutesUpdateMeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiUserRoutesUpdateMe']>>>
+/**
+ * @summary List Public Collectives
+ */
+const osolotServerApiCollectivesListPublicCollectives = (
+    
+ ) => {
+      return customInstance<CollectiveSummary[]>(
+      {url: `/api/collectives/`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Create Collective
+ */
+const osolotServerApiCollectivesCreateCollective = (
+    collectiveSettings: CollectiveSettings,
+ ) => {
+      return customInstance<CollectiveDetail>(
+      {url: `/api/collectives/`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: collectiveSettings
+    },
+      );
+    }
+  
+/**
+ * @summary List My Collectives
+ */
+const osolotServerApiCollectivesListMyCollectives = (
+    
+ ) => {
+      return customInstance<CollectiveSummary[]>(
+      {url: `/api/collectives/mine`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Get Collective
+ */
+const osolotServerApiCollectivesGetCollective = (
+    collectiveId: number,
+ ) => {
+      return customInstance<CollectiveDetail>(
+      {url: `/api/collectives/${collectiveId}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Update Collective
+ */
+const osolotServerApiCollectivesUpdateCollective = (
+    collectiveId: number,
+    collectiveSettings: CollectiveSettings,
+ ) => {
+      return customInstance<CollectiveDetail>(
+      {url: `/api/collectives/${collectiveId}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: collectiveSettings
+    },
+      );
+    }
+  
+/**
+ * @summary Delete Collective
+ */
+const osolotServerApiCollectivesDeleteCollective = (
+    collectiveId: number,
+ ) => {
+      return customInstance<MessageOut>(
+      {url: `/api/collectives/${collectiveId}`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary List Memberships
+ */
+const osolotServerApiCollectiveMembershipsListMemberships = (
+    collectiveId: number,
+ ) => {
+      return customInstance<MembershipSummary[]>(
+      {url: `/api/collectives/${collectiveId}/members`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Join Collective
+ */
+const osolotServerApiCollectiveMembershipsJoinCollective = (
+    collectiveId: number,
+    joinCollectiveRequest: JoinCollectiveRequest,
+ ) => {
+      return customInstance<MembershipDetail>(
+      {url: `/api/collectives/${collectiveId}/join`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: joinCollectiveRequest
+    },
+      );
+    }
+  
+/**
+ * @summary Get Membership
+ */
+const osolotServerApiCollectiveMembershipsGetMembership = (
+    collectiveId: number,
+    userId: number,
+ ) => {
+      return customInstance<MembershipDetail>(
+      {url: `/api/collectives/${collectiveId}/membership/${userId}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Update Membership
+ */
+const osolotServerApiCollectiveMembershipsUpdateMembership = (
+    collectiveId: number,
+    userId: number,
+    updateMembershipRequest: UpdateMembershipRequest,
+ ) => {
+      return customInstance<MembershipDetail>(
+      {url: `/api/collectives/${collectiveId}/membership/${userId}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateMembershipRequest
+    },
+      );
+    }
+  
+/**
+ * @summary Delete Membership
+ */
+const osolotServerApiCollectiveMembershipsDeleteMembership = (
+    collectiveId: number,
+    userId: number,
+ ) => {
+      return customInstance<MessageOut>(
+      {url: `/api/collectives/${collectiveId}/membership/${userId}`, method: 'DELETE'
+    },
+      );
+    }
+  
+return {osolotServerApiAuthRegister,osolotServerApiAuthLogin,osolotServerApiAuthRefresh,osolotServerApiAuthPasswordResetRequest,osolotServerApiAuthPasswordResetConfirm,osolotServerApiAuthEmailVerificationRequest,osolotServerApiAuthEmailVerificationConfirm,osolotServerApiUsersMe,osolotServerApiUsersUpdateMe,osolotServerApiCollectivesListPublicCollectives,osolotServerApiCollectivesCreateCollective,osolotServerApiCollectivesListMyCollectives,osolotServerApiCollectivesGetCollective,osolotServerApiCollectivesUpdateCollective,osolotServerApiCollectivesDeleteCollective,osolotServerApiCollectiveMembershipsListMemberships,osolotServerApiCollectiveMembershipsJoinCollective,osolotServerApiCollectiveMembershipsGetMembership,osolotServerApiCollectiveMembershipsUpdateMembership,osolotServerApiCollectiveMembershipsDeleteMembership}};
+export type OsolotServerApiAuthRegisterResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthRegister']>>>
+export type OsolotServerApiAuthLoginResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthLogin']>>>
+export type OsolotServerApiAuthRefreshResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthRefresh']>>>
+export type OsolotServerApiAuthPasswordResetRequestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthPasswordResetRequest']>>>
+export type OsolotServerApiAuthPasswordResetConfirmResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthPasswordResetConfirm']>>>
+export type OsolotServerApiAuthEmailVerificationRequestResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthEmailVerificationRequest']>>>
+export type OsolotServerApiAuthEmailVerificationConfirmResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthEmailVerificationConfirm']>>>
+export type OsolotServerApiUsersMeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiUsersMe']>>>
+export type OsolotServerApiUsersUpdateMeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiUsersUpdateMe']>>>
+export type OsolotServerApiCollectivesListPublicCollectivesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesListPublicCollectives']>>>
+export type OsolotServerApiCollectivesCreateCollectiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesCreateCollective']>>>
+export type OsolotServerApiCollectivesListMyCollectivesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesListMyCollectives']>>>
+export type OsolotServerApiCollectivesGetCollectiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesGetCollective']>>>
+export type OsolotServerApiCollectivesUpdateCollectiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesUpdateCollective']>>>
+export type OsolotServerApiCollectivesDeleteCollectiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesDeleteCollective']>>>
+export type OsolotServerApiCollectiveMembershipsListMembershipsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectiveMembershipsListMemberships']>>>
+export type OsolotServerApiCollectiveMembershipsJoinCollectiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectiveMembershipsJoinCollective']>>>
+export type OsolotServerApiCollectiveMembershipsGetMembershipResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectiveMembershipsGetMembership']>>>
+export type OsolotServerApiCollectiveMembershipsUpdateMembershipResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectiveMembershipsUpdateMembership']>>>
+export type OsolotServerApiCollectiveMembershipsDeleteMembershipResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectiveMembershipsDeleteMembership']>>>
