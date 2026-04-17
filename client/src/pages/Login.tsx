@@ -12,9 +12,10 @@ export default function Login() {
   const [panel, setPanel] = useState<"login" | "register">("login");
   const [error, setError] = useState<string | null>(null);
 
-  const [loginEmail, setLoginEmail] = useState("");
+  const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPass, setLoginPass] = useState("");
 
+  const [regUsername, setRegUsername] = useState("");
   const [regPass, setRegPass] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regFirstName, setRegFirstName] = useState("");
@@ -24,10 +25,10 @@ export default function Login() {
     e.preventDefault();
     setError(null);
     try {
-      await login(loginEmail, loginPass);
+      await login(loginIdentifier, loginPass);
       navigate(redirectTo, { replace: true });
     } catch {
-      setError("Login failed. Check email and password.");
+      setError("Login failed. Check your email or username and password.");
     }
   }
 
@@ -36,6 +37,7 @@ export default function Login() {
     setError(null);
     try {
       await register({
+        username: regUsername.trim(),
         password: regPass,
         email: regEmail,
         first_name: regFirstName || undefined,
@@ -43,7 +45,9 @@ export default function Login() {
       });
       navigate(redirectTo, { replace: true });
     } catch {
-      setError("Registration failed. That email may already be registered.");
+      setError(
+        "Registration failed. That email or username may already be taken.",
+      );
     }
   }
 
@@ -84,12 +88,12 @@ export default function Login() {
       {panel === "login" ? (
         <form onSubmit={handleLogin} className="card form">
           <label>
-            Email
+            Email or username
             <input
-              type="email"
-              value={loginEmail}
-              onChange={(e) => setLoginEmail(e.target.value)}
-              autoComplete="email"
+              type="text"
+              value={loginIdentifier}
+              onChange={(e) => setLoginIdentifier(e.target.value)}
+              autoComplete="username"
               required
             />
           </label>
@@ -114,6 +118,18 @@ export default function Login() {
         </form>
       ) : (
         <form onSubmit={handleRegister} className="card form">
+          <label>
+            Username (3–31 characters: letters, digits, _ . -)
+            <input
+              type="text"
+              value={regUsername}
+              onChange={(e) => setRegUsername(e.target.value)}
+              autoComplete="username"
+              required
+              minLength={3}
+              maxLength={31}
+            />
+          </label>
           <label>
             Email
             <input

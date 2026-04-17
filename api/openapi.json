@@ -235,7 +235,7 @@
         }
       }
     },
-    "/api/users/me": {
+    "/api/users/my/profile": {
       "get": {
         "operationId": "osolot_server_api_users_me",
         "summary": "Me",
@@ -297,10 +297,42 @@
         ]
       }
     },
+    "/api/users/my/memberships": {
+      "get": {
+        "operationId": "osolot_server_api_users_list_my_memberships",
+        "summary": "List My Memberships",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MembershipSummary"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "List all memberships for the current user, including pending memberships.",
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      }
+    },
     "/api/collectives/": {
       "get": {
-        "operationId": "osolot_server_api_collectives_list_public_collectives",
-        "summary": "List Public Collectives",
+        "operationId": "osolot_server_api_collectives_list_collectives",
+        "summary": "List Collectives",
         "parameters": [],
         "responses": {
           "200": {
@@ -318,6 +350,7 @@
             }
           }
         },
+        "description": "List all collectives visible to the current user.",
         "tags": [
           "collectives"
         ]
@@ -351,37 +384,6 @@
           },
           "required": true
         },
-        "security": [
-          {
-            "JWTAuth": []
-          }
-        ]
-      }
-    },
-    "/api/collectives/mine": {
-      "get": {
-        "operationId": "osolot_server_api_collectives_list_my_collectives",
-        "summary": "List My Collectives",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CollectiveSummary"
-                  },
-                  "title": "Response",
-                  "type": "array"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "collectives"
-        ],
         "security": [
           {
             "JWTAuth": []
@@ -746,6 +748,12 @@
       },
       "RegisterIn": {
         "properties": {
+          "username": {
+            "maxLength": 31,
+            "minLength": 3,
+            "title": "Username",
+            "type": "string"
+          },
           "password": {
             "minLength": 8,
             "title": "Password",
@@ -771,6 +779,7 @@
           }
         },
         "required": [
+          "username",
           "password",
           "email"
         ],
@@ -779,10 +788,10 @@
       },
       "LoginIn": {
         "properties": {
-          "email": {
+          "identifier": {
             "maxLength": 254,
-            "minLength": 1,
-            "title": "Email",
+            "minLength": 3,
+            "title": "Identifier",
             "type": "string"
           },
           "password": {
@@ -791,7 +800,7 @@
           }
         },
         "required": [
-          "email",
+          "identifier",
           "password"
         ],
         "title": "LoginIn",
@@ -915,38 +924,32 @@
       "UserProfile": {
         "properties": {
           "id": {
-            "title": "Id",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "ID"
+          },
+          "username": {
+            "description": "Required. 150 characters or fewer. Letters, digits, and _.- only.",
+            "maxLength": 150,
+            "title": "Username",
+            "type": "string"
           },
           "email": {
+            "maxLength": 254,
             "title": "Email",
             "type": "string"
           },
           "email_verified": {
+            "default": false,
             "title": "Email Verified",
             "type": "boolean"
           },
-          "first_name": {
-            "title": "First Name",
-            "type": "string"
-          },
-          "last_name": {
-            "title": "Last Name",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "email",
-          "email_verified",
-          "first_name",
-          "last_name"
-        ],
-        "title": "UserProfile",
-        "type": "object"
-      },
-      "UpdateProfileRequest": {
-        "properties": {
           "first_name": {
             "anyOf": [
               {
@@ -972,40 +975,182 @@
             "title": "Last Name"
           }
         },
+        "required": [
+          "username",
+          "email"
+        ],
+        "title": "UserProfile",
+        "type": "object"
+      },
+      "UpdateProfileRequest": {
+        "properties": {
+          "username": {
+            "description": "Required. 150 characters or fewer. Letters, digits, and _.- only.",
+            "maxLength": 150,
+            "title": "Username",
+            "type": "string"
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "maxLength": 150,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "maxLength": 150,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
+          }
+        },
+        "required": [
+          "username"
+        ],
         "title": "UpdateProfileRequest",
         "type": "object"
       },
       "CollectiveSummary": {
         "properties": {
           "id": {
-            "title": "Id",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "ID"
           },
           "name": {
+            "maxLength": 255,
             "title": "Name",
             "type": "string"
           },
           "description": {
+            "maxLength": 10000,
             "title": "Description",
             "type": "string"
           },
           "visibility": {
+            "default": "public",
             "title": "Visibility",
             "type": "string"
           },
           "admission_type": {
+            "default": "open",
             "title": "Admission Type",
             "type": "string"
           }
         },
         "required": [
-          "id",
           "name",
-          "description",
-          "visibility",
-          "admission_type"
+          "description"
         ],
         "title": "CollectiveSummary",
+        "type": "object"
+      },
+      "MembershipSummary": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserSummary"
+          },
+          "collective": {
+            "$ref": "#/components/schemas/CollectiveSummary"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          }
+        },
+        "required": [
+          "user",
+          "collective",
+          "status",
+          "role"
+        ],
+        "title": "MembershipSummary",
+        "type": "object"
+      },
+      "Role": {
+        "enum": [
+          "admin",
+          "moderator",
+          "member"
+        ],
+        "title": "Role",
+        "type": "string"
+      },
+      "Status": {
+        "enum": [
+          "active",
+          "pending"
+        ],
+        "title": "Status",
+        "type": "string"
+      },
+      "UserSummary": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "ID"
+          },
+          "username": {
+            "description": "Required. 150 characters or fewer. Letters, digits, and _.- only.",
+            "maxLength": 150,
+            "title": "Username",
+            "type": "string"
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "maxLength": 150,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "maxLength": 150,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
+          }
+        },
+        "required": [
+          "username"
+        ],
+        "title": "UserSummary",
         "type": "object"
       },
       "CollectiveDetail": {
@@ -1033,90 +1178,44 @@
         "title": "CollectiveDetail",
         "type": "object"
       },
-      "MembershipSummary": {
-        "properties": {
-          "user": {
-            "$ref": "#/components/schemas/UserSummary"
-          },
-          "collective": {
-            "$ref": "#/components/schemas/CollectiveSummary"
-          },
-          "status": {
-            "title": "Status",
-            "type": "string"
-          },
-          "role": {
-            "title": "Role",
-            "type": "string"
-          }
-        },
-        "required": [
-          "user",
-          "collective",
-          "status",
-          "role"
-        ],
-        "title": "MembershipSummary",
-        "type": "object"
-      },
-      "UserSummary": {
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "integer"
-          },
-          "first_name": {
-            "title": "First Name",
-            "type": "string"
-          },
-          "last_name": {
-            "title": "Last Name",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "first_name",
-          "last_name"
-        ],
-        "title": "UserSummary",
-        "type": "object"
-      },
       "CollectiveSettings": {
         "properties": {
           "name": {
             "maxLength": 255,
-            "minLength": 1,
             "title": "Name",
             "type": "string"
           },
           "description": {
-            "default": "",
-            "maxLength": 100000,
+            "maxLength": 10000,
             "title": "Description",
             "type": "string"
           },
           "visibility": {
-            "default": "private",
-            "maxLength": 31,
+            "default": "public",
             "title": "Visibility",
             "type": "string"
           },
           "admission_type": {
             "default": "open",
-            "maxLength": 31,
             "title": "Admission Type",
             "type": "string"
           },
           "application_question": {
-            "default": "",
-            "maxLength": 100000,
-            "title": "Application Question",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Message to users who apply for membership.",
+            "title": "Application Question"
           }
         },
         "required": [
-          "name"
+          "name",
+          "description"
         ],
         "title": "CollectiveSettings",
         "type": "object"
@@ -1127,12 +1226,26 @@
             "$ref": "#/components/schemas/MembershipSummary"
           },
           "application_message": {
-            "title": "Application Message",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Application Message"
           },
           "applied_at": {
-            "title": "Applied At",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applied At"
           },
           "joined_at": {
             "anyOf": [
@@ -1146,8 +1259,15 @@
             "title": "Joined At"
           },
           "updated_at": {
-            "title": "Updated At",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
           },
           "approved_by": {
             "anyOf": [
@@ -1161,10 +1281,7 @@
           }
         },
         "required": [
-          "summary",
-          "application_message",
-          "applied_at",
-          "updated_at"
+          "summary"
         ],
         "title": "MembershipDetail",
         "type": "object"
@@ -1173,7 +1290,7 @@
         "properties": {
           "application_message": {
             "default": "",
-            "maxLength": 100000,
+            "maxLength": 10000,
             "title": "Application Message",
             "type": "string"
           }
@@ -1186,38 +1303,37 @@
           "application_message": {
             "anyOf": [
               {
-                "maxLength": 100000,
+                "maxLength": 10000,
                 "type": "string"
               },
               {
                 "type": "null"
               }
             ],
+            "description": "Requesting user only.",
             "title": "Application Message"
           },
           "status": {
             "anyOf": [
               {
-                "maxLength": 31,
-                "type": "string"
+                "$ref": "#/components/schemas/Status"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Status"
+            "description": "Admin and moderators only."
           },
           "role": {
             "anyOf": [
               {
-                "maxLength": 31,
-                "type": "string"
+                "$ref": "#/components/schemas/Role"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Role"
+            "description": "Admin only."
           }
         },
         "title": "UpdateMembershipRequest",

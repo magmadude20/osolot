@@ -7,6 +7,7 @@ from ninja.errors import HttpError
 from ..api_builders.detail_builders import collective_detail_for_viewer
 from ..api_builders.summary_builders import collective_summary
 from ..models import Collective, Membership
+from ..permissions.collective_permissions import user_visible_collectives
 from ..security import JWTAuth, get_optional_user
 from .schemas import (
     CollectiveDetail,
@@ -32,27 +33,15 @@ def _validate_collective_settings(settings: CollectiveSettings) -> None:
 # --- Collectives ---
 
 
-@collectives_router.get("/", response=list[CollectiveSummary], tags=["collectives"])
-def list_public_collectives(request):
-    qs = Collective.objects.filter(visibility=Collective.Visibility.PUBLIC).order_by(
-        "name"
-    )
-    return [collective_summary(c) for c in qs]
-
-
 @collectives_router.get(
-    "/mine",
+    "/",
     response=list[CollectiveSummary],
-    auth=JWTAuth(),
     tags=["collectives"],
+    description="List all collectives visible to the current user.",
 )
-def list_my_collectives(request):
-    user = request.auth
-    ids = Membership.objects.filter(
-        user=user, status=Membership.Status.ACTIVE
-    ).values_list("collective_id", flat=True)
-    qs = Collective.objects.filter(id__in=ids).order_by("name")
-    return [collective_summary(c) for c in qs]
+def list_collectives(request):
+    visible_collectives = user_visible_collectives(get_optional_user(request))
+    return [collective_summary(c) for c in visible_collectives]
 
 
 @collectives_router.post(

@@ -1,4 +1,6 @@
-from ninja import Field, Schema
+from ninja import Field, ModelSchema, Schema
+
+from ..models import Collective, Membership, User
 
 ### Common
 
@@ -10,27 +12,25 @@ class MessageOut(Schema):
 ### Summary Schemas, for use in e.g. lists.
 
 
-class UserSummary(Schema):
-    id: int
-    first_name: str
-    last_name: str
-    # Future: num_groups, mutuals
+class UserSummary(ModelSchema):
+    class Meta:
+        model = User
+        fields = ["id", "username", "first_name", "last_name"]
+        # Future: relationship summary, e.g. 'friend of friend'
 
 
-class CollectiveSummary(Schema):
-    id: int
-    name: str
-    description: str
-    visibility: str
-    admission_type: str
-    # Future: num_members, friends in group
+class CollectiveSummary(ModelSchema):
+    class Meta:
+        model = Collective
+        fields = ["id", "name", "description", "visibility", "admission_type"]
+        # Future: num_members
 
 
 class MembershipSummary(Schema):
     user: UserSummary
     collective: CollectiveSummary
-    status: str
-    role: str
+    status: Membership.Status
+    role: Membership.Role
 
 
 ### Detail Schemas, for display of a single entity.
@@ -39,22 +39,24 @@ class MembershipSummary(Schema):
 class UserDetail(Schema):
     summary: UserSummary
     memberships: list[MembershipSummary]
-    # Future: bio, relation, location
+    # Future: bio, location, relation to viewer, mutuals
 
 
 class CollectiveDetail(Schema):
     summary: CollectiveSummary
     members: list[MembershipSummary]
     application_question: str
-    # Future: description, location
+    # Future: location, viewer's friends in group
 
 
 class MembershipDetail(Schema):
     summary: MembershipSummary
-    application_message: str
-    applied_at: str
+
+    # Fields may be dropped depending on the user's role.
+    application_message: str | None = None
+    applied_at: str | None = None
     joined_at: str | None = None  # Missing for PENDING users
-    updated_at: str
+    updated_at: str | None = None
     approved_by: UserSummary | None = None
 
 
@@ -62,6 +64,7 @@ class MembershipDetail(Schema):
 
 
 class RegisterIn(Schema):
+    username: str = Field(..., min_length=3, max_length=31)
     password: str = Field(..., min_length=8)
     email: str = Field(..., min_length=1, max_length=254)
     first_name: str = Field("", max_length=150)
@@ -69,7 +72,7 @@ class RegisterIn(Schema):
 
 
 class LoginIn(Schema):
-    email: str = Field(..., min_length=1, max_length=254)
+    identifier: str = Field(..., min_length=3, max_length=254)
     password: str
 
 
@@ -109,42 +112,59 @@ class VerifyEmailConfirmIn(Schema):
 
 
 # A user's own profile, including private fields.
-class UserProfile(Schema):
-    id: int
-    email: str
-    email_verified: bool
-    first_name: str
-    last_name: str
 
 
-class UpdateProfileRequest(Schema):
-    first_name: str | None = Field(None, max_length=150)
-    last_name: str | None = Field(None, max_length=150)
+class UserProfile(ModelSchema):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "email_verified",
+            "first_name",
+            "last_name",
+        ]
+
+
+class UpdateProfileRequest(ModelSchema):
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name"]
+        optional = ["__all__"]
 
 
 ### Collective
 
 
 # User-configurable data for a collective.
-class CollectiveSettings(Schema):
-    name: str = Field(..., min_length=1, max_length=255)
-    description: str = Field("", max_length=100_000)
-    visibility: str = Field("private", max_length=31)
-    admission_type: str = Field("open", max_length=31)
-    application_question: str = Field("", max_length=100_000)
+class CollectiveSettings(ModelSchema):
+    class Meta:
+        model = Collective
+        fields = [
+            "name",
+            "description",
+            "visibility",
+            "admission_type",
+            "application_question",
+        ]
+        optional = ["__all__"]
 
 
 ### Membership
 
 
 class JoinCollectiveRequest(Schema):
-    application_message: str = Field("", max_length=100_000)
+    application_message: str = Field("", max_length=10_000)
 
 
 class UpdateMembershipRequest(Schema):
-    # Only for user requesting to join collective.
-    application_message: str | None = Field(None, max_length=100_000)
-    # Only for admin and moderators.
-    status: str | None = Field(None, max_length=31)
-    # Only for admin.
-    role: str | None = Field(None, max_length=31)
+    application_message: str | None = Field(
+        None,
+        max_length=10_000,
+        description="Requesting user only.",
+    )
+    status: Membership.Status | None = Field(
+        None, description="Admin and moderators only."
+    )
+    role: Membership.Role | None = Field(None, description="Admin only.")

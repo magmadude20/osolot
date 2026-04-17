@@ -26,7 +26,7 @@ class CollectiveMembershipInline(admin.TabularInline):
             super()
             .get_queryset(request)
             .select_related("user")
-            .order_by("user__email")
+            .order_by("role", "-updated_at")
         )
 
 
@@ -63,8 +63,8 @@ class UserAdmin(DjangoUserAdmin):
         *DjangoUserAdmin.fieldsets,
         ("Profile", {"fields": ("email_verified",)}),
     )
-    list_display = ("email", "email_verified", "is_staff")
-    search_fields = ("email", "first_name", "last_name")
+    list_display = ("username", "email", "email_verified", "is_staff")
+    search_fields = ("username", "email", "first_name", "last_name")
     inlines = (*DjangoUserAdmin.inlines, UserMembershipInline)
 
 
@@ -80,5 +80,5 @@ class CollectiveAdmin(admin.ModelAdmin):
 class MembershipAdmin(admin.ModelAdmin):
     list_display = ("user", "collective", "status", "role", "approved_by")
     list_filter = ("status", "role")
-    search_fields = ("user__email", "collective__name")
+    search_fields = ("user__username", "user__email", "collective__name")
     autocomplete_fields = ("user", "collective", "approved_by")

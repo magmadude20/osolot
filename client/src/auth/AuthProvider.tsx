@@ -53,8 +53,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const tokens = await api.osolotServerApiAuthLogin({ email, password });
+  const login = useCallback(async (identifier: string, password: string) => {
+    const tokens = await api.osolotServerApiAuthLogin({
+      identifier: identifier.trim(),
+      password,
+    });
     setTokens(tokens.access, tokens.refresh);
     await refreshMe();
   }, [refreshMe]);

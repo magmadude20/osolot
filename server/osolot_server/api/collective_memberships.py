@@ -5,7 +5,7 @@ from ninja import Router
 from ninja.errors import HttpError
 
 from ..api_builders.detail_builders import membership_detail_for_viewer
-from ..api_builders.summary_builders import membership_summary
+from ..api_builders.summary_builders import collective_summary, membership_summary
 from ..models import Collective, Membership
 from ..permissions.collective_permissions import (
     can_manage_member_roles,
@@ -26,21 +26,13 @@ from .schemas import (
 collective_memberships_router = Router()
 
 
-def _validate_update_membership_request(request: UpdateMembershipRequest) -> None:
-    if request.status is not None and request.status not in Membership.Status.values:
-        raise HttpError(400, "Invalid status.")
-
-    if request.role is not None and request.role not in Membership.Role.values:
-        raise HttpError(400, "Invalid role.")
-
-
 # This method may not be needed, since getting a collective already gives all membership summaries.
 # It could be used in the future for pagination.
 # At this point, it's already here and shouldn't be hurting anything, so leaving it.
 @collective_memberships_router.get(
     "/{collective_id}/members",
     response=list[MembershipSummary],
-    tags=["memberships"],
+    tags=["collectives"],
 )
 def list_memberships(request, collective_id: int):
     collective = get_object_or_404(Collective, id=collective_id)
@@ -56,7 +48,7 @@ def list_memberships(request, collective_id: int):
     "/{collective_id}/join",
     response=MembershipDetail,
     auth=JWTAuth(),
-    tags=["memberships"],
+    tags=["collectives"],
 )
 def join_collective(request, collective_id: int, data: JoinCollectiveRequest):
     collective = get_object_or_404(Collective, id=collective_id)
@@ -113,7 +105,11 @@ def get_membership(request, collective_id: int, user_id: int):
 def update_membership(
     request, collective_id: int, user_id: int, data: UpdateMembershipRequest
 ):
-    _validate_update_membership_request(data)
+    # Validate request
+    if data.status is not None and data.status not in Membership.Status.values:
+        raise HttpError(400, "Invalid status.")
+    if data.role is not None and data.role not in Membership.Role.values:
+        raise HttpError(400, "Invalid role.")
 
     user_membership = get_object_or_404(
         Membership.objects.select_related("collective", "user"),

@@ -41,6 +41,20 @@ def can_view_collective(user: User | None, collective: Collective) -> bool:
     )
 
 
+# Query Sets
+
+
+# Visible collectives for user:
+# Public collectives can be seen by everyone
+# Private collectives can be seen by members (including pending members)
+def user_visible_collectives(viewer: User | None) -> QuerySet[Membership]:
+    if viewer is None:
+        return Collective.objects.filter(visibility=Collective.Visibility.PUBLIC)
+    return Collective.objects.filter(
+        Q(visibility=Collective.Visibility.PUBLIC) | Q(members=viewer)
+    ).distinct()
+
+
 # Collective member visibility:
 # Admins and mods can see all members
 # Members can see other active members, and thier own membership (which may be pending)

@@ -68,6 +68,10 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 AUTH_USER_MODEL = "osolot_server.User"
 
+AUTHENTICATION_BACKENDS = [
+    "auth.backends.EmailOrUsernameBackend",
+]
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"

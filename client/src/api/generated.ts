@@ -6,77 +6,129 @@
  * OpenAPI spec version: 0.0.1
  */
 import { customInstance } from './axios-instance';
-export type UpdateMembershipRequestStatus = string | null;
+/**
+ * Admin and moderators only.
+ */
+export type UpdateMembershipRequestStatus = Status | null;
 
-export type UpdateMembershipRequestRole = string | null;
+/**
+ * Admin only.
+ */
+export type UpdateMembershipRequestRole = Role | null;
 
+/**
+ * Requesting user only.
+ */
 export type UpdateMembershipRequestApplicationMessage = string | null;
 
 export interface UpdateMembershipRequest {
+  /** Requesting user only. */
   application_message?: UpdateMembershipRequestApplicationMessage;
+  /** Admin only. */
   role?: UpdateMembershipRequestRole;
+  /** Admin and moderators only. */
   status?: UpdateMembershipRequestStatus;
 }
 
 export interface JoinCollectiveRequest {
-  /** @maxLength 100000 */
+  /** @maxLength 10000 */
   application_message?: string;
 }
 
+export type MembershipDetailUpdatedAt = string | null;
+
 export type MembershipDetailJoinedAt = string | null;
-
-export interface CollectiveSettings {
-  /** @maxLength 31 */
-  admission_type?: string;
-  /** @maxLength 100000 */
-  application_question?: string;
-  /** @maxLength 100000 */
-  description?: string;
-  /**
-   * @minLength 1
-   * @maxLength 255
-   */
-  name: string;
-  /** @maxLength 31 */
-  visibility?: string;
-}
-
-export interface UserSummary {
-  first_name: string;
-  id: number;
-  last_name: string;
-}
 
 export type MembershipDetailApprovedBy = UserSummary | null;
 
-export interface CollectiveSummary {
-  admission_type: string;
-  description: string;
-  id: number;
-  name: string;
-  visibility: string;
-}
+export type MembershipDetailAppliedAt = string | null;
 
-export interface MembershipSummary {
-  collective: CollectiveSummary;
-  role: string;
-  status: string;
-  user: UserSummary;
-}
+export type MembershipDetailApplicationMessage = string | null;
 
 export interface MembershipDetail {
-  application_message: string;
-  applied_at: string;
+  application_message?: MembershipDetailApplicationMessage;
+  applied_at?: MembershipDetailAppliedAt;
   approved_by?: MembershipDetailApprovedBy;
   joined_at?: MembershipDetailJoinedAt;
   summary: MembershipSummary;
-  updated_at: string;
+  updated_at?: MembershipDetailUpdatedAt;
+}
+
+/**
+ * Message to users who apply for membership.
+ */
+export type CollectiveSettingsApplicationQuestion = string | null;
+
+export interface CollectiveSettings {
+  admission_type?: string;
+  /** Message to users who apply for membership. */
+  application_question?: CollectiveSettingsApplicationQuestion;
+  /** @maxLength 10000 */
+  description: string;
+  /** @maxLength 255 */
+  name: string;
+  visibility?: string;
 }
 
 export interface CollectiveDetail {
   application_question: string;
   members: MembershipSummary[];
   summary: CollectiveSummary;
+}
+
+export type UserSummaryLastName = string | null;
+
+export type UserSummaryId = number | null;
+
+export type UserSummaryFirstName = string | null;
+
+export interface UserSummary {
+  first_name?: UserSummaryFirstName;
+  id?: UserSummaryId;
+  last_name?: UserSummaryLastName;
+  /**
+   * Required. 150 characters or fewer. Letters, digits, and _.- only.
+   * @maxLength 150
+   */
+  username: string;
+}
+
+export type Status = typeof Status[keyof typeof Status];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const Status = {
+  active: 'active',
+  pending: 'pending',
+} as const;
+
+export type Role = typeof Role[keyof typeof Role];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const Role = {
+  admin: 'admin',
+  moderator: 'moderator',
+  member: 'member',
+} as const;
+
+export type CollectiveSummaryId = number | null;
+
+export interface CollectiveSummary {
+  admission_type?: string;
+  /** @maxLength 10000 */
+  description: string;
+  id?: CollectiveSummaryId;
+  /** @maxLength 255 */
+  name: string;
+  visibility?: string;
+}
+
+export interface MembershipSummary {
+  collective: CollectiveSummary;
+  role: Role;
+  status: Status;
+  user: UserSummary;
 }
 
 export type UpdateProfileRequestLastName = string | null;
@@ -86,14 +138,31 @@ export type UpdateProfileRequestFirstName = string | null;
 export interface UpdateProfileRequest {
   first_name?: UpdateProfileRequestFirstName;
   last_name?: UpdateProfileRequestLastName;
+  /**
+   * Required. 150 characters or fewer. Letters, digits, and _.- only.
+   * @maxLength 150
+   */
+  username: string;
 }
 
+export type UserProfileLastName = string | null;
+
+export type UserProfileId = number | null;
+
+export type UserProfileFirstName = string | null;
+
 export interface UserProfile {
+  /** @maxLength 254 */
   email: string;
-  email_verified: boolean;
-  first_name: string;
-  id: number;
-  last_name: string;
+  email_verified?: boolean;
+  first_name?: UserProfileFirstName;
+  id?: UserProfileId;
+  last_name?: UserProfileLastName;
+  /**
+   * Required. 150 characters or fewer. Letters, digits, and _.- only.
+   * @maxLength 150
+   */
+  username: string;
 }
 
 export interface VerifyEmailConfirmIn {
@@ -142,10 +211,10 @@ export interface AccessTokenOut {
 
 export interface LoginIn {
   /**
-   * @minLength 1
+   * @minLength 3
    * @maxLength 254
    */
-  email: string;
+  identifier: string;
   password: string;
 }
 
@@ -161,6 +230,11 @@ export interface RegisterIn {
   last_name?: string;
   /** @minLength 8 */
   password: string;
+  /**
+   * @minLength 3
+   * @maxLength 31
+   */
+  username: string;
 }
 
 export interface TokenPairOut {
@@ -278,7 +352,7 @@ const osolotServerApiUsersMe = (
     
  ) => {
       return customInstance<UserProfile>(
-      {url: `/api/users/me`, method: 'GET'
+      {url: `/api/users/my/profile`, method: 'GET'
     },
       );
     }
@@ -290,7 +364,7 @@ const osolotServerApiUsersUpdateMe = (
     updateProfileRequest: UpdateProfileRequest,
  ) => {
       return customInstance<UserProfile>(
-      {url: `/api/users/me`, method: 'PATCH',
+      {url: `/api/users/my/profile`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: updateProfileRequest
     },
@@ -298,9 +372,23 @@ const osolotServerApiUsersUpdateMe = (
     }
   
 /**
- * @summary List Public Collectives
+ * List all memberships for the current user, including pending memberships.
+ * @summary List My Memberships
  */
-const osolotServerApiCollectivesListPublicCollectives = (
+const osolotServerApiUsersListMyMemberships = (
+    
+ ) => {
+      return customInstance<MembershipSummary[]>(
+      {url: `/api/users/my/memberships`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * List all collectives visible to the current user.
+ * @summary List Collectives
+ */
+const osolotServerApiCollectivesListCollectives = (
     
  ) => {
       return customInstance<CollectiveSummary[]>(
@@ -319,18 +407,6 @@ const osolotServerApiCollectivesCreateCollective = (
       {url: `/api/collectives/`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: collectiveSettings
-    },
-      );
-    }
-  
-/**
- * @summary List My Collectives
- */
-const osolotServerApiCollectivesListMyCollectives = (
-    
- ) => {
-      return customInstance<CollectiveSummary[]>(
-      {url: `/api/collectives/mine`, method: 'GET'
     },
       );
     }
@@ -443,7 +519,7 @@ const osolotServerApiCollectiveMembershipsDeleteMembership = (
       );
     }
   
-return {osolotServerApiAuthRegister,osolotServerApiAuthLogin,osolotServerApiAuthRefresh,osolotServerApiAuthPasswordResetRequest,osolotServerApiAuthPasswordResetConfirm,osolotServerApiAuthEmailVerificationRequest,osolotServerApiAuthEmailVerificationConfirm,osolotServerApiUsersMe,osolotServerApiUsersUpdateMe,osolotServerApiCollectivesListPublicCollectives,osolotServerApiCollectivesCreateCollective,osolotServerApiCollectivesListMyCollectives,osolotServerApiCollectivesGetCollective,osolotServerApiCollectivesUpdateCollective,osolotServerApiCollectivesDeleteCollective,osolotServerApiCollectiveMembershipsListMemberships,osolotServerApiCollectiveMembershipsJoinCollective,osolotServerApiCollectiveMembershipsGetMembership,osolotServerApiCollectiveMembershipsUpdateMembership,osolotServerApiCollectiveMembershipsDeleteMembership}};
+return {osolotServerApiAuthRegister,osolotServerApiAuthLogin,osolotServerApiAuthRefresh,osolotServerApiAuthPasswordResetRequest,osolotServerApiAuthPasswordResetConfirm,osolotServerApiAuthEmailVerificationRequest,osolotServerApiAuthEmailVerificationConfirm,osolotServerApiUsersMe,osolotServerApiUsersUpdateMe,osolotServerApiUsersListMyMemberships,osolotServerApiCollectivesListCollectives,osolotServerApiCollectivesCreateCollective,osolotServerApiCollectivesGetCollective,osolotServerApiCollectivesUpdateCollective,osolotServerApiCollectivesDeleteCollective,osolotServerApiCollectiveMembershipsListMemberships,osolotServerApiCollectiveMembershipsJoinCollective,osolotServerApiCollectiveMembershipsGetMembership,osolotServerApiCollectiveMembershipsUpdateMembership,osolotServerApiCollectiveMembershipsDeleteMembership}};
 export type OsolotServerApiAuthRegisterResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthRegister']>>>
 export type OsolotServerApiAuthLoginResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthLogin']>>>
 export type OsolotServerApiAuthRefreshResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthRefresh']>>>
@@ -453,9 +529,9 @@ export type OsolotServerApiAuthEmailVerificationRequestResult = NonNullable<Awai
 export type OsolotServerApiAuthEmailVerificationConfirmResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiAuthEmailVerificationConfirm']>>>
 export type OsolotServerApiUsersMeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiUsersMe']>>>
 export type OsolotServerApiUsersUpdateMeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiUsersUpdateMe']>>>
-export type OsolotServerApiCollectivesListPublicCollectivesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesListPublicCollectives']>>>
+export type OsolotServerApiUsersListMyMembershipsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiUsersListMyMemberships']>>>
+export type OsolotServerApiCollectivesListCollectivesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesListCollectives']>>>
 export type OsolotServerApiCollectivesCreateCollectiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesCreateCollective']>>>
-export type OsolotServerApiCollectivesListMyCollectivesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesListMyCollectives']>>>
 export type OsolotServerApiCollectivesGetCollectiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesGetCollective']>>>
 export type OsolotServerApiCollectivesUpdateCollectiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesUpdateCollective']>>>
 export type OsolotServerApiCollectivesDeleteCollectiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOsolotAPI>['osolotServerApiCollectivesDeleteCollective']>>>

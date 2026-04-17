@@ -1,4 +1,5 @@
 import { type FormEvent, useEffect, useState } from "react";
+import { type AxiosError } from "axios";
 import { Link } from "react-router-dom";
 import { getOsolotAPI } from "../api/generated";
 import { useAuth } from "../auth/AuthContext";
@@ -8,6 +9,7 @@ const api = getOsolotAPI();
 
 export default function Home() {
   const { user, loading, logout, updateProfile } = useAuth();
+  const [editUsername, setEditUsername] = useState("");
   const [editFirstName, setEditFirstName] = useState("");
   const [editLastName, setEditLastName] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +20,7 @@ export default function Home() {
 
   useEffect(() => {
     if (user) {
+      setEditUsername(user.username);
       setEditFirstName(user.first_name);
       setEditLastName(user.last_name);
     }
@@ -29,11 +32,16 @@ export default function Home() {
     setError(null);
     try {
       await updateProfile({
+        username: editUsername.trim(),
         first_name: editFirstName,
         last_name: editLastName,
       });
-    } catch {
-      setError("Could not update profile.");
+    } catch (err) {
+      const ax = err as AxiosError<{ detail?: string }>;
+      const detail = ax.response?.data?.detail;
+      setError(
+        typeof detail === "string" ? detail : "Could not update profile.",
+      );
     }
   }
 
@@ -119,6 +127,17 @@ export default function Home() {
           </div>
 
           <form onSubmit={handleSaveProfile} className="form">
+            <label>
+              Username (3–31 characters: letters, digits, _ . -)
+              <input
+                value={editUsername}
+                onChange={(e) => setEditUsername(e.target.value)}
+                autoComplete="username"
+                required
+                minLength={3}
+                maxLength={31}
+              />
+            </label>
             <label>
               First name
               <input

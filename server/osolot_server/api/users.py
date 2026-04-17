@@ -1,7 +1,15 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from ninja import Router
+from ninja.errors import HttpError
 
-from .schemas import UpdateProfileRequest, UserProfile
+from ..api_builders.summary_builders import membership_summary
+from ..models import Membership
+
+from ..api_builders.exceptions import validation_error_to_http_error
+
+from .schemas import MembershipSummary, UpdateProfileRequest, UserProfile
 from ..security import JWTAuth
 
 User = get_user_model()
@@ -9,31 +17,55 @@ User = get_user_model()
 users_router = Router()
 
 
-def _user_profile_out(u: User) -> UserProfile:
-    return UserProfile(
-        id=u.id,
-        email=u.email or "",
-        email_verified=u.email_verified,
-        first_name=u.first_name or "",
-        last_name=u.last_name or "",
-    )
-
-
-@users_router.get("/me", response=UserProfile, auth=JWTAuth(), tags=["users"])
+@users_router.get("/my/profile", response=UserProfile, auth=JWTAuth(), tags=["users"])
 def me(request):
-    return _user_profile_out(request.auth)
+    return UserProfile.from_orm(request.auth)
 
 
-@users_router.patch("/me", response=UserProfile, auth=JWTAuth(), tags=["users"])
+@users_router.patch("/my/profile", response=UserProfile, auth=JWTAuth(), tags=["users"])
 def update_me(request, data: UpdateProfileRequest):
     user: User = request.auth
     update_fields: list[str] = []
+
     if data.first_name is not None:
-        user.first_name = data.first_name
-        update_fields.append("first_name")
+        new_first_name = (data.first_name or "").strip()
+        if new_first_name != user.first_name:
+            user.first_name = new_first_name
+            update_fields.append("first_name")
+
     if data.last_name is not None:
-        user.last_name = data.last_name
-        update_fields.append("last_name")
+        new_last_name = (data.last_name or "").strip()
+        if new_last_name != user.last_name:
+            user.last_name = new_last_name
+            update_fields.append("last_name")
+
+    if data.username is not None:
+        new_username = (data.username or "").strip()
+        if new_username != user.username:
+            user.username = new_username
+            update_fields.append("username")
+
     if update_fields:
-        user.save(update_fields=update_fields)
-    return _user_profile_out(user)
+        try:
+            user.save(update_fields=update_fields)
+        except ValidationError as e:
+            raise validation_error_to_http_error(e) from None
+        except IntegrityError:
+            raise HttpError(400, "That username is already taken.") from None
+
+    return UserProfile.from_orm(user)
+
+
+@users_router.get(
+    "/my/memberships",
+    response=list[MembershipSummary],
+    auth=JWTAuth(),
+    tags=["users"],
+    description="List all memberships for the current user, including pending memberships.",
+)
+def list_my_memberships(request):
+    user = request.auth
+    memberships = Membership.objects.filter(user=user).select_related(
+        "user", "collective"
+    )
+    return [membership_summary(m) for m in memberships]

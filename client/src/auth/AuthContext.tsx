@@ -5,7 +5,7 @@ export type AuthContextValue = {
   user: UserProfile | null;
   loading: boolean;
   refreshMe: () => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
   register: (data: RegisterIn) => Promise<void>;
   updateProfile: (data: UpdateProfileRequest) => Promise<void>;
   logout: () => void;
