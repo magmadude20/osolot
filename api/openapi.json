@@ -329,6 +329,43 @@
         ]
       }
     },
+    "/api/users/{username}": {
+      "get": {
+        "operationId": "osolot_server_api_users_get_user_profile",
+        "summary": "Get User Profile",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "schema": {
+              "title": "Username",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      }
+    },
     "/api/collectives/": {
       "get": {
         "operationId": "osolot_server_api_collectives_list_collectives",
@@ -586,7 +623,7 @@
         ]
       }
     },
-    "/api/collectives/{collective_slug}/membership/{user_id}": {
+    "/api/collectives/{collective_slug}/membership/{username}": {
       "get": {
         "operationId": "osolot_server_api_collective_memberships_get_membership",
         "summary": "Get Membership",
@@ -602,10 +639,10 @@
           },
           {
             "in": "path",
-            "name": "user_id",
+            "name": "username",
             "schema": {
-              "title": "User Id",
-              "type": "integer"
+              "title": "Username",
+              "type": "string"
             },
             "required": true
           }
@@ -641,10 +678,10 @@
           },
           {
             "in": "path",
-            "name": "user_id",
+            "name": "username",
             "schema": {
-              "title": "User Id",
-              "type": "integer"
+              "title": "Username",
+              "type": "string"
             },
             "required": true
           }
@@ -695,10 +732,10 @@
           },
           {
             "in": "path",
-            "name": "user_id",
+            "name": "username",
             "schema": {
-              "title": "User Id",
-              "type": "integer"
+              "title": "Username",
+              "type": "string"
             },
             "required": true
           }
@@ -1171,6 +1208,37 @@
           "username"
         ],
         "title": "UserSummary",
+        "type": "object"
+      },
+      "UserDetail": {
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/UserSummary"
+          },
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          },
+          "mutual_collectives": {
+            "items": {
+              "$ref": "#/components/schemas/CollectiveSummary"
+            },
+            "title": "Mutual Collectives",
+            "type": "array"
+          }
+        },
+        "required": [
+          "summary",
+          "mutual_collectives"
+        ],
+        "title": "UserDetail",
         "type": "object"
       },
       "CollectiveDetail": {

@@ -1,6 +1,6 @@
-from ..models import Collective, Membership, User
-
 from django.db.models import Q, QuerySet
+
+from ..models import Collective, Membership, User
 
 
 # Admins can manage collective member roles

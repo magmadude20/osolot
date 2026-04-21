@@ -55,8 +55,8 @@ export default function CollectiveDetail() {
       setMembershipLoading(false);
       return;
     }
-    const viewerId = user.id;
-    if (viewerId == null) {
+    const viewerUsername = user.username;
+    if (!viewerUsername) {
       setMyMembership(null);
       setMembershipLoading(false);
       return;
@@ -65,7 +65,7 @@ export default function CollectiveDetail() {
     setMembershipLoading(true);
     void (async () => {
       try {
-        const m = await fetchMembership(slug, viewerId, ac.signal);
+        const m = await fetchMembership(slug, viewerUsername, ac.signal);
         setMyMembership(m);
       } catch {
         setMyMembership(null);
@@ -118,8 +118,8 @@ export default function CollectiveDetail() {
 
   function handleLeaveCollective() {
     if (!user || !collective || !slugOk) return;
-    const viewerId = user.id;
-    if (viewerId == null) return;
+    const viewerUsername = user.username;
+    if (!viewerUsername) return;
     const ok = window.confirm(
       "Leave this collective? You can join again later if the collective allows it.",
     );
@@ -129,7 +129,10 @@ export default function CollectiveDetail() {
     setLeaving(true);
     void (async () => {
       try {
-        await api.osolotServerApiCollectiveMembershipsDeleteMembership(slug, viewerId);
+        await api.osolotServerApiCollectiveMembershipsDeleteMembership(
+          slug,
+          viewerUsername,
+        );
         navigate("/collectives", { replace: true });
       } catch {
         setLeaveError(
@@ -275,16 +278,29 @@ export default function CollectiveDetail() {
               <p className="muted">No members listed.</p>
             ) : (
               <ul className="member-list">
-                {collective.members.map((m) => (
-                  <li key={`${m.user.id}-${m.collective.slug}`}>
-                    <span className="member-name">
-                      {m.user.first_name} {m.user.last_name}
-                    </span>
-                    <span className="member-meta">
-                      {m.role} · {m.status}
-                    </span>
-                  </li>
-                ))}
+                {collective.members.map((m) => {
+                  const name =
+                    [m.user.first_name, m.user.last_name]
+                      .filter(Boolean)
+                      .join(" ")
+                      .trim() || m.user.username;
+                  return (
+                    <li key={`${m.user.id}-${m.collective.slug}`}>
+                      <Link
+                        to={`/users/${encodeURIComponent(m.user.username)}`}
+                        state={{
+                          fromCollectiveSlug: collective.summary.slug,
+                        }}
+                        className="member-name member-name-link"
+                      >
+                        {name}
+                      </Link>
+                      <span className="member-meta">
+                        {m.role} · {m.status}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </section>

@@ -74,17 +74,17 @@ def join_collective(request, collective_slug: str, data: JoinCollectiveRequest):
 
 
 @collective_memberships_router.get(
-    "/{collective_slug}/membership/{user_id}",
+    "/{collective_slug}/membership/{username}",
     response=MembershipDetail,
     tags=["memberships"],
 )
-def get_membership(request, collective_slug: str, user_id: int):
+def get_membership(request, collective_slug: str, username: str):
     collective = get_object_or_404(Collective, slug=collective_slug)
     viewer = get_optional_user(request)
 
     visible_user_membership = (
         user_visible_collective_members(viewer, collective)
-        .filter(user_id=user_id)
+        .filter(user__username=username)
         .first()
     )
     if visible_user_membership is None:
@@ -94,13 +94,13 @@ def get_membership(request, collective_slug: str, user_id: int):
 
 
 @collective_memberships_router.put(
-    "/{collective_slug}/membership/{user_id}",
+    "/{collective_slug}/membership/{username}",
     response=MembershipDetail,
     auth=JWTAuth(),
     tags=["memberships"],
 )
 def update_membership(
-    request, collective_slug: str, user_id: int, data: UpdateMembershipRequest
+    request, collective_slug: str, username: str, data: UpdateMembershipRequest
 ):
     # Validate request
     if data.status is not None and data.status not in Membership.Status.values:
@@ -111,7 +111,7 @@ def update_membership(
     user_membership = get_object_or_404(
         Membership.objects.select_related("collective", "user"),
         collective__slug=collective_slug,
-        user_id=user_id,
+        user__username=username,
     )
     collective = user_membership.collective
     user = user_membership.user
@@ -176,14 +176,14 @@ def update_membership(
 
 
 @collective_memberships_router.delete(
-    "/{collective_slug}/membership/{user_id}",
+    "/{collective_slug}/membership/{username}",
     response=MessageOut,
     auth=JWTAuth(),
     tags=["memberships"],
 )
-def delete_membership(request, collective_slug: str, user_id: int):
-    user_membership = Membership.find_for_user_and_collective_slug(
-        user_id, collective_slug
+def delete_membership(request, collective_slug: str, username: str):
+    user_membership = Membership.find_for_username_and_collective_slug(
+        username, collective_slug
     )
     if user_membership is None:
         raise HttpError(404, "Membership not found.")
@@ -191,7 +191,7 @@ def delete_membership(request, collective_slug: str, user_id: int):
 
     actor = request.auth
 
-    if actor.id != user_id and not can_manage_memberships(actor, collective):
+    if actor.username != username and not can_manage_memberships(actor, collective):
         raise HttpError(403, "Not allowed.")
 
     num_admins = Membership.objects.for_collective(collective).admins().count()

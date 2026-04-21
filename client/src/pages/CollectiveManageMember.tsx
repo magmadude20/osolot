@@ -31,13 +31,13 @@ function formatWhen(iso: string | undefined | null) {
 }
 
 export default function CollectiveManageMember() {
-  const { collectiveSlug, userId } = useParams<{
+  const { collectiveSlug, username } = useParams<{
     collectiveSlug: string;
-    userId: string;
+    username: string;
   }>();
   const slug = collectiveSlug ?? "";
   const slugOk = isValidCollectiveSlug(slug);
-  const targetUserId = userId ? Number.parseInt(userId, 10) : NaN;
+  const targetUsername = username ?? "";
 
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -49,7 +49,7 @@ export default function CollectiveManageMember() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!slugOk || !Number.isFinite(targetUserId)) {
+    if (!slugOk || !targetUsername) {
       setLoadError("Invalid collective or user.");
       return;
     }
@@ -61,7 +61,7 @@ export default function CollectiveManageMember() {
     void (async () => {
       try {
         const c = await fetchCollective(slug, ac.signal);
-        const m = await fetchMembership(slug, targetUserId, ac.signal);
+        const m = await fetchMembership(slug, targetUsername, ac.signal);
         if (ac.signal.aborted) return;
         setCollective(c);
         setMembership(m);
@@ -71,7 +71,7 @@ export default function CollectiveManageMember() {
       }
     })();
     return () => ac.abort();
-  }, [slug, slugOk, targetUserId]);
+  }, [slug, slugOk, targetUsername]);
 
   const canManage = useMemo(() => {
     if (!user || !collective) return false;
@@ -93,7 +93,7 @@ export default function CollectiveManageMember() {
   async function refresh() {
     const m = await api.osolotServerApiCollectiveMembershipsGetMembership(
       slug,
-      targetUserId,
+      targetUsername,
     );
     setMembership(m);
   }
@@ -138,7 +138,7 @@ export default function CollectiveManageMember() {
     );
   }
 
-  if (loadError || !slugOk || !Number.isFinite(targetUserId)) {
+  if (loadError || !slugOk || !targetUsername) {
     return (
       <div className="page">
         <p className="error">{loadError ?? "Invalid collective or user."}</p>
@@ -174,11 +174,12 @@ export default function CollectiveManageMember() {
   const pending = membership.summary.status === "pending";
   const name =
     `${membership.summary.user.first_name} ${membership.summary.user.last_name}`.trim() ||
+    membership.summary.user.username ||
     `User #${membership.summary.user.id}`;
 
   function handleApprove() {
     void withBusy(() =>
-      api.osolotServerApiCollectiveMembershipsUpdateMembership(slug, targetUserId, {
+      api.osolotServerApiCollectiveMembershipsUpdateMembership(slug, targetUsername, {
         status: "active",
       }),
     );
@@ -190,7 +191,7 @@ export default function CollectiveManageMember() {
     );
     if (!ok) return;
     void withBusy(() =>
-      api.osolotServerApiCollectiveMembershipsDeleteMembership(slug, targetUserId),
+      api.osolotServerApiCollectiveMembershipsDeleteMembership(slug, targetUsername),
     ).then(() => navigate(backHref, { replace: true }));
   }
 
@@ -200,13 +201,13 @@ export default function CollectiveManageMember() {
     );
     if (!ok) return;
     void withBusy(() =>
-      api.osolotServerApiCollectiveMembershipsDeleteMembership(slug, targetUserId),
+      api.osolotServerApiCollectiveMembershipsDeleteMembership(slug, targetUsername),
     ).then(() => navigate(backHref, { replace: true }));
   }
 
   function handleRoleChange(role: Role) {
     void withBusy(() =>
-      api.osolotServerApiCollectiveMembershipsUpdateMembership(slug, targetUserId, {
+      api.osolotServerApiCollectiveMembershipsUpdateMembership(slug, targetUsername, {
         role,
       }),
     );
@@ -304,7 +305,7 @@ export default function CollectiveManageMember() {
 
         </div>
 
-        {targetUserId !== user.id ? (
+        {membership.summary.user.username !== user.username ? (
           <div className="danger-zone">
             <div className="danger-zone-meta">
               <strong>Danger zone</strong>

@@ -9,12 +9,7 @@ from ..api_builders.summary_builders import collective_summary
 from ..models import Collective, Membership
 from ..permissions.collective_permissions import user_visible_collectives
 from ..security import JWTAuth, get_optional_user
-from .schemas import (
-    CollectiveDetail,
-    CollectiveSettings,
-    CollectiveSummary,
-    MessageOut,
-)
+from .schemas import CollectiveDetail, CollectiveSettings, CollectiveSummary, MessageOut
 
 collectives_router = Router()
 

@@ -4,13 +4,18 @@ from django.db import IntegrityError
 from ninja import Router
 from ninja.errors import HttpError
 
-from ..api_builders.summary_builders import membership_summary
-from ..models import Membership
-
 from ..api_builders.exceptions import validation_error_to_http_error
-
-from .schemas import MembershipSummary, UpdateProfileRequest, UserProfile
-from ..security import JWTAuth
+from ..api_builders.summary_builders import membership_summary
+from ..api_builders.detail_builders import user_detail_for_viewer
+from ..models import Membership
+from ..security import JWTAuth, get_optional_user
+from .schemas import (
+    MembershipSummary,
+    UpdateProfileRequest,
+    UserDetail,
+    UserProfile,
+    UserSummary,
+)
 
 User = get_user_model()
 
@@ -75,3 +80,12 @@ def list_my_memberships(request):
         "user", "collective"
     )
     return [membership_summary(m) for m in memberships]
+
+
+@users_router.get(
+    "/{username}", response=UserDetail, tags=["users"]
+)
+def get_user_profile(request, username: str):
+    viewer = get_optional_user(request)
+    user = User.objects.get(username=username)
+    return user_detail_for_viewer(user, viewer)

@@ -12,18 +12,20 @@ import CollectiveEdit from "./pages/CollectiveEdit.tsx";
 import CollectiveManageMembersList from "./pages/CollectiveManageMembersList.tsx";
 import CollectiveManageMember from "./pages/CollectiveManageMember.tsx";
 import CollectiveDetail from "./pages/CollectiveDetail.tsx";
+import UserProfile from "./pages/UserProfile.tsx";
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/users/:username" element={<UserProfile />} />
       <Route path="/collectives" element={<CollectivesList />} />
       <Route path="/collectives/new" element={<CollectiveNew />} />
       <Route path="/collectives/:collectiveSlug/join" element={<CollectiveJoin />} />
       <Route path="/collectives/:collectiveSlug/edit" element={<CollectiveEdit />} />
       <Route
-        path="/collectives/:collectiveSlug/members/manage/:userId"
+        path="/collectives/:collectiveSlug/members/manage/:username"
         element={<CollectiveManageMember />}
       />
       <Route

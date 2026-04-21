@@ -86,3 +86,13 @@ class Membership(models.Model):
             .select_related("collective", "user")
             .first()
         )
+
+    @classmethod
+    def find_for_username_and_collective_slug(
+        cls, username: str, collective_slug: str
+    ) -> Membership | None:
+        return (
+            cls.objects.filter(user__username=username, collective__slug=collective_slug)
+            .select_related("collective", "user")
+            .first()
+        )

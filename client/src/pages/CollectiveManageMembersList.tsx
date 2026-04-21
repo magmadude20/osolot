@@ -139,15 +139,17 @@ export default function CollectiveManageMembersList() {
 
       <ul className="manage-member-cards">
         {sortedMemberships.map((m) => {
-          const uid = m.user.id;
+          const username = m.user.username;
           const name =
-            `${m.user.first_name} ${m.user.last_name}`.trim() || `User #${uid}`;
+            `${m.user.first_name} ${m.user.last_name}`.trim() ||
+            username ||
+            `User #${m.user.id}`;
           const pending = m.status === "pending";
-          const href = `/collectives/${slug}/members/manage/${uid}`;
+          const href = `/collectives/${slug}/members/manage/${username}`;
 
           return (
             <li
-              key={uid}
+              key={username}
               className={`card manage-member-card ${pending ? "pending" : ""}`}
             >
               <Link to={href} className="manage-member-link">

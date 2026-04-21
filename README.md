@@ -96,8 +96,8 @@ Current status: Implementing server, vibe-coded client
     * ~~Only admins can edit collective & change roles~~
     * ~~Admins and moderators can manage members~~
 * View user details
-  * Require mutual collective
-  * Only show mutual collectives
+  * ~~Get user profile~~
+  * ~~Only show mutual collectives~~
   * Only show items in mutual collectives
 * Offer/request management
   * Create/edit offer/request

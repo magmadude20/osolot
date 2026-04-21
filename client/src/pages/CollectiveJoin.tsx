@@ -55,8 +55,8 @@ export default function CollectiveJoin() {
       setMembershipChecked(true);
       return;
     }
-    const viewerId = user.id;
-    if (viewerId == null) {
+    const viewerUsername = user.username;
+    if (!viewerUsername) {
       setPendingEdit(false);
       setMembershipChecked(true);
       return;
@@ -70,7 +70,7 @@ export default function CollectiveJoin() {
     setMembershipChecked(false);
     void (async () => {
       try {
-        const m = await fetchMembership(slug, viewerId, ac.signal);
+        const m = await fetchMembership(slug, viewerUsername, ac.signal);
         if (m.summary.status === "pending") {
           setPendingEdit(true);
           setApplicationMessage(m.application_message ?? "");
@@ -93,15 +93,19 @@ export default function CollectiveJoin() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!user || !slugOk) return;
-    const viewerId = user.id;
-    if (viewerId == null) return;
+    const viewerUsername = user.username;
+    if (!viewerUsername) return;
     setSubmitError(null);
     setSubmitting(true);
     try {
       if (pendingEdit) {
-        await api.osolotServerApiCollectiveMembershipsUpdateMembership(slug, viewerId, {
+        await api.osolotServerApiCollectiveMembershipsUpdateMembership(
+          slug,
+          viewerUsername,
+          {
           application_message: applicationMessage,
-        });
+          },
+        );
       } else {
         await api.osolotServerApiCollectiveMembershipsJoinCollective(slug, {
           application_message: applicationMessage,

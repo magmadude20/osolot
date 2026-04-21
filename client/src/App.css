@@ -294,6 +294,25 @@ a.btn {
   font-weight: 500;
 }
 
+a.member-name-link {
+  color: #2563eb;
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+a.member-name-link:hover {
+  text-decoration: underline;
+}
+
+.user-profile-username {
+  margin: 0.25rem 0 0.75rem;
+}
+
+.user-profile-bio {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
 .member-meta {
   font-size: 0.8rem;
   color: #64748b;

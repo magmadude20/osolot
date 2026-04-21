@@ -39,7 +39,8 @@ class MembershipSummary(Schema):
 class UserDetail(Schema):
     summary: UserSummary
     bio: str | None = None
-    memberships: list[MembershipSummary]
+    # List of collectives in common with the viewer.
+    mutual_collectives: list[CollectiveSummary]
     # Future: location, relation to viewer, mutuals
 
 

@@ -1,13 +1,14 @@
-from ..api.schemas import CollectiveDetail, MembershipDetail
+from django.db.models import QuerySet
+from ninja.errors import HttpError
+
+from ..api.schemas import CollectiveDetail, MembershipDetail, UserDetail
 from ..models import Collective, Membership, User
 from ..permissions.collective_permissions import (
     membership_can_manage_members,
     user_visible_collective_members,
 )
+from ..permissions.user_permissions import mutual_collectives_with_user
 from .summary_builders import collective_summary, membership_summary, user_summary
-from ninja.errors import HttpError
-
-from django.db.models import QuerySet
 
 
 def _membership_detail(membership: Membership) -> MembershipDetail:
@@ -62,3 +63,13 @@ def collective_detail_for_viewer(
 ) -> CollectiveDetail:
     visible_members = user_visible_collective_members(viewer, collective)
     return _collective_detail_with_members(collective, visible_members)
+
+
+def user_detail_for_viewer(
+    user: User, viewer: User | None
+) -> UserDetail:
+    return UserDetail(
+        summary=user_summary(user),
+        bio=user.bio,
+        mutual_collectives=[collective_summary(c) for c in mutual_collectives_with_user(viewer, user)],
+    )

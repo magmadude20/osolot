@@ -1,8 +1,10 @@
-import random, string
+import random
+import string
 
 from django.db import models
 
 from .user import User
+
 
 # Add a random collective id, so that ids aren't predictable.
 def generate_collective_slug():

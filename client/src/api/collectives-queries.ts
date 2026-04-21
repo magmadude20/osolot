@@ -50,11 +50,11 @@ export function fetchCollectiveMemberships(
 
 export function fetchMembership(
   collectiveSlug: string,
-  userId: number,
+  username: string,
   signal?: AbortSignal,
 ) {
   return customInstance<MembershipDetail>({
-    url: `/api/collectives/${collectiveSlug}/membership/${userId}`,
+    url: `/api/collectives/${collectiveSlug}/membership/${username}`,
     method: "GET",
     signal,
   });

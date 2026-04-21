@@ -2,19 +2,17 @@ import logging
 import random
 import time
 
-from django.contrib.auth import authenticate
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, get_user_model
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models import Q
 from django.utils.http import urlsafe_base64_decode
 from ninja import Router
 from ninja.errors import HttpError
-from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from ..api_builders.exceptions import validation_error_to_http_error
-
 from ..email.auth_emails import (
     send_password_reset_email,
     send_verification_email,
@@ -23,8 +21,6 @@ from ..email.auth_emails import (
 from ..security import JWTAuth
 from .schemas import (
     AccessTokenOut,
-    VerifyEmailConfirmIn,
-    VerifyEmailRequestIn,
     LoginIn,
     MessageOut,
     PasswordResetConfirmIn,
@@ -32,6 +28,8 @@ from .schemas import (
     RefreshIn,
     RegisterIn,
     TokenPairOut,
+    VerifyEmailConfirmIn,
+    VerifyEmailRequestIn,
 )
 
 logger = logging.getLogger(__name__)
