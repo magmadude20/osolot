@@ -1,8 +1,14 @@
 from django.db.models import QuerySet
 from ninja.errors import HttpError
 
-from ..api.schemas import CollectiveDetail, MembershipDetail, UserDetail
-from ..models import Collective, Membership, User
+from ..api.schemas import (
+    CollectiveDetail,
+    CollectiveSummary,
+    MembershipDetail,
+    PostDetail,
+    UserDetail,
+)
+from ..models import Collective, Membership, Post, User
 from ..permissions.collective_permissions import (
     membership_can_manage_members,
     user_visible_collective_members,
@@ -65,11 +71,32 @@ def collective_detail_for_viewer(
     return _collective_detail_with_members(collective, visible_members)
 
 
-def user_detail_for_viewer(
-    user: User, viewer: User | None
-) -> UserDetail:
+def user_detail_for_viewer(user: User, viewer: User | None) -> UserDetail:
     return UserDetail(
         summary=user_summary(user),
         bio=user.bio,
-        mutual_collectives=[collective_summary(c) for c in mutual_collectives_with_user(viewer, user)],
+        mutual_collectives=[
+            collective_summary(c) for c in mutual_collectives_with_user(viewer, user)
+        ],
     )
+
+
+# NOTE: it is assumed that `viewer` has permission to see the post.
+def post_detail_for_viewer(post: Post, viewer: User | None) -> PostDetail:
+    post_detail = PostDetail.from_orm(post)
+    post_detail.owner = user_summary(post.owner)
+
+    if viewer and viewer.id == post.owner_id:
+        post_detail.share_with_new_collectives_default = (
+            post.share_with_new_collectives_default
+        )
+        shared_collectives = Collective.objects.filter(
+            id__in=post.shared_memberships.values_list("collective", flat=True)
+        )
+        post_detail.shared_collectives = [
+            collective_summary(c) for c in shared_collectives
+        ]
+    else:
+        post_detail.share_with_new_collectives_default = None
+
+    return post_detail

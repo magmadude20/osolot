@@ -756,6 +756,187 @@
           }
         ]
       }
+    },
+    "/api/posts/mine": {
+      "get": {
+        "operationId": "osolot_server_api_posts_list_posts",
+        "summary": "List Posts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PostSummary"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "List posts owned by the current user.",
+        "tags": [
+          "posts"
+        ],
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      }
+    },
+    "/api/posts/{post_slug}": {
+      "get": {
+        "operationId": "osolot_server_api_posts_get_post",
+        "summary": "Get Post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "post_slug",
+            "schema": {
+              "title": "Post Slug",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "posts"
+        ]
+      },
+      "patch": {
+        "operationId": "osolot_server_api_posts_update_post",
+        "summary": "Update Post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "post_slug",
+            "schema": {
+              "title": "Post Slug",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "posts"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostSettingsPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "osolot_server_api_posts_delete_post",
+        "summary": "Delete Post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "post_slug",
+            "schema": {
+              "title": "Post Slug",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "posts"
+        ],
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      }
+    },
+    "/api/posts/": {
+      "post": {
+        "operationId": "osolot_server_api_posts_create_post",
+        "summary": "Create Post",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "posts"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "JWTAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -955,17 +1136,6 @@
       },
       "UserProfile": {
         "properties": {
-          "id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "ID"
-          },
           "username": {
             "description": "Required. 150 characters or fewer. Letters, digits, and _.- only.",
             "maxLength": 150,
@@ -1157,17 +1327,6 @@
       },
       "UserSummary": {
         "properties": {
-          "id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "ID"
-          },
           "username": {
             "description": "Required. 150 characters or fewer. Letters, digits, and _.- only.",
             "maxLength": 150,
@@ -1420,6 +1579,237 @@
           }
         },
         "title": "UpdateMembershipRequest",
+        "type": "object"
+      },
+      "PostSummary": {
+        "properties": {
+          "slug": {
+            "maxLength": 16,
+            "title": "Slug",
+            "type": "string"
+          },
+          "type": {
+            "default": "offer",
+            "maxLength": 31,
+            "title": "Type",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 255,
+            "title": "Title",
+            "type": "string"
+          },
+          "public": {
+            "default": false,
+            "title": "Public",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "title": "PostSummary",
+        "type": "object"
+      },
+      "PostDetail": {
+        "properties": {
+          "owner": {
+            "$ref": "#/components/schemas/UserSummary",
+            "description": "The user who owns the post.",
+            "read_only": true
+          },
+          "shared_collectives": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/CollectiveSummary"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shared Collectives"
+          },
+          "slug": {
+            "maxLength": 16,
+            "title": "Slug",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "public": {
+            "default": false,
+            "title": "Public",
+            "type": "boolean"
+          },
+          "type": {
+            "default": "offer",
+            "maxLength": 31,
+            "title": "Type",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 255,
+            "title": "Title",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "share_with_new_collectives_default": {
+            "default": true,
+            "title": "Share With New Collectives Default",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "owner",
+          "created_at",
+          "updated_at",
+          "title",
+          "description"
+        ],
+        "title": "PostDetail",
+        "type": "object"
+      },
+      "PostSettingsPatch": {
+        "properties": {
+          "type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PostType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "public": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Public"
+          },
+          "share_with_new_collectives_default": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share With New Collectives Default"
+          },
+          "shared_collective_slugs": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shared Collective Slugs"
+          }
+        },
+        "title": "PostSettingsPatch",
+        "type": "object"
+      },
+      "PostType": {
+        "enum": [
+          "offer",
+          "request"
+        ],
+        "title": "PostType",
+        "type": "string"
+      },
+      "PostSettings": {
+        "properties": {
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PostType"
+              }
+            ],
+            "default": "offer"
+          },
+          "title": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 10000,
+            "title": "Description",
+            "type": "string"
+          },
+          "public": {
+            "title": "Public",
+            "type": "boolean"
+          },
+          "share_with_new_collectives_default": {
+            "title": "Share With New Collectives Default",
+            "type": "boolean"
+          },
+          "shared_collective_slugs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Shared Collective Slugs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "title",
+          "public",
+          "share_with_new_collectives_default",
+          "shared_collective_slugs"
+        ],
+        "title": "PostSettings",
         "type": "object"
       }
     },

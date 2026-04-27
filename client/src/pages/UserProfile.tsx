@@ -115,7 +115,7 @@ export default function UserProfile() {
               @{detail.summary.username}
             </p>
             {detail.bio ? <p className="user-profile-bio">{detail.bio}</p> : null}
-            {user?.id === detail.summary.id ? (
+            {user?.username === detail.summary.username ? (
               <p className="muted">
                 This is you.{" "}
                 <Link to="/" className="link">

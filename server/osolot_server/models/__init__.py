@@ -1,5 +1,6 @@
 from .collective import Collective
 from .membership import Membership
+from .post import Post
 from .user import User
 
-__all__ = ["User", "Collective", "Membership"]
+__all__ = ["User", "Collective", "Membership", "Post"]

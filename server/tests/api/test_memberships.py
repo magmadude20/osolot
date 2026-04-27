@@ -18,7 +18,6 @@ class MembershipsApiTests(TestCase):
             description="D",
             **payload,
         )
-        self.assertEqual(r.status_code, 200, r.content)
         data = json.loads(r.content)
         return owner, data["summary"]["slug"]
 
@@ -27,7 +26,6 @@ class MembershipsApiTests(TestCase):
         joiner = TestUser(username="joiner", email="joiner@example.com")
         joiner.login()
         r = joiner.join_collective(slug)
-        self.assertEqual(r.status_code, 200)
         body = json.loads(r.content)
         self.assertEqual(body["summary"]["status"], "active")
 
@@ -42,7 +40,6 @@ class MembershipsApiTests(TestCase):
         r = applicant.join_collective(
             slug, application_message="Please let me in"
         )
-        self.assertEqual(r.status_code, 200)
         body = json.loads(r.content)
         self.assertEqual(body["summary"]["status"], "pending")
 
@@ -51,9 +48,7 @@ class MembershipsApiTests(TestCase):
         twice = TestUser(username="twice", email="twice@example.com")
         twice.login()
         r1 = twice.join_collective(slug)
-        self.assertEqual(r1.status_code, 200)
-        r2 = twice.join_collective(slug)
-        self.assertEqual(r2.status_code, 400)
+        r2 = twice.join_collective(slug, expected_status=400)
 
     def test_member_can_leave_collective(self):
         _, slug = self._create_collective_via_api(
@@ -62,11 +57,8 @@ class MembershipsApiTests(TestCase):
         leaver = TestUser(username="leaver", email="leaver@example.com")
         leaver.login()
         join = leaver.join_collective(slug)
-        self.assertEqual(join.status_code, 200)
         r = leaver.leave_collective(slug)
-        self.assertEqual(r.status_code, 200)
-        gone = leaver.get_membership(slug, "leaver")
-        self.assertEqual(gone.status_code, 404)
+        gone = leaver.get_membership(slug, "leaver", expected_status=404)
 
     def test_non_member_cannot_remove_other_member(self):
         _, slug = self._create_collective_via_api("ownerm", "ownerm@example.com")
@@ -86,9 +78,8 @@ class MembershipsApiTests(TestCase):
         peer.login()
         peer.join_collective(slug)
         r = peer.update_membership(
-            slug, "ownerr", data={"role": "member"}
+            slug, "ownerr", data={"role": "member"}, expected_status=403
         )
-        self.assertEqual(r.status_code, 403)
 
     def test_admin_can_approve_pending_member(self):
         admin, slug = self._create_collective_via_api(
@@ -102,7 +93,6 @@ class MembershipsApiTests(TestCase):
         r = admin.update_membership(
             slug, "penduser", data={"status": "active"}
         )
-        self.assertEqual(r.status_code, 200)
         body = json.loads(r.content)
         self.assertEqual(body["summary"]["status"], "active")
         self.assertIsNotNone(body.get("joined_at"))

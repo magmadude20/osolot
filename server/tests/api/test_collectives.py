@@ -55,7 +55,6 @@ class CollectivesApiTests(TestCase):
 
         # Anonymous user
         anon = self.client.get("/api/collectives/")
-        self.assertEqual(anon.status_code, 200)
         anon_slugs = {c["slug"] for c in json.loads(anon.content)}
         self.assertIn(public_slug, anon_slugs)
         self.assertNotIn(unlisted_slug, anon_slugs)
@@ -63,7 +62,6 @@ class CollectivesApiTests(TestCase):
         bob = TestUser(username="bob0", email="bob0@example.com")
         bob.login()
         bob_r = bob.list_collectives()
-        self.assertEqual(bob_r.status_code, 200)
         bob_slugs = {c["slug"] for c in json.loads(bob_r.content)}
         self.assertIn(public_slug, bob_slugs)
         self.assertNotIn(unlisted_slug, bob_slugs)
@@ -76,24 +74,22 @@ class CollectivesApiTests(TestCase):
             description="x",
             visibility=Collective.Visibility.UNLISTED,
         )
-        self.assertEqual(created.status_code, 200)
         slug = json.loads(created.content)["summary"]["slug"]
 
         bob = TestUser(username="bob", email="bob@example.com")
         bob.login()
         join = bob.join_collective(slug)
-        self.assertEqual(join.status_code, 200)
 
         r = bob.list_collectives()
-        self.assertEqual(r.status_code, 200)
         slugs = {c["slug"] for c in json.loads(r.content)}
         self.assertIn(slug, slugs)
 
     def test_invalid_visibility_400(self):
         u = TestUser(username="visbad", email="visbad@example.com")
         u.login()
-        r = u.create_collective(visibility="not-a-real-visibility")
-        self.assertEqual(r.status_code, 400)
+        r = u.create_collective(
+            visibility="not-a-real-visibility", expected_status=400
+        )
 
     def test_get_collective_unknown_slug_404(self):
         r = self.client.get("/api/collectives/NONEXISTANT/")

@@ -30,7 +30,7 @@ Shared helpers live in `tests/base.py`
 
 All server tests live under `server/tests/` as a single top-level test package. We’ll organize by domain to mirror the API/modules:
 
-```
+```text
 server/tests/
   __init__.py
   test_plan.md

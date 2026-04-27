@@ -62,3 +62,4 @@ Main **Django app** (`osolot_server`): models, admin, API routers, security help
 - **Sync changes across django/database/client**: `scripts/update_stack.sh`.
 - **Start full dev stack**: `scripts/run_stack.sh` runs stack update, then starts dev server (port 8000) + client (port 5173).
 - **Django**: from `server/`, use `.venv/bin/python manage.py` (`makemigrations`, `createsuperuser`, etc.). `runserver`, `migrate`, etc. is generally run by way of `update_stack.py`
+  - Always create migrations using the `makemigrations` command, never manually write migrations.

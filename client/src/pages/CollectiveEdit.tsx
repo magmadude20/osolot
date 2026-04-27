@@ -61,7 +61,7 @@ export default function CollectiveEdit() {
   const isAdmin = useMemo(() => {
     if (!user || !collective) return false;
     return collective.members.some(
-      (m) => m.user.id === user.id && m.role === "admin",
+      (m) => m.user.username === user.username && m.role === "admin",
     );
   }, [user, collective]);
 

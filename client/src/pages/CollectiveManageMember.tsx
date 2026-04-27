@@ -77,7 +77,7 @@ export default function CollectiveManageMember() {
     if (!user || !collective) return false;
     return collective.members.some(
       (m) =>
-        m.user.id === user.id &&
+        m.user.username === user.username &&
         m.status === "active" &&
         (m.role === "admin" || m.role === "moderator"),
     );
@@ -86,7 +86,10 @@ export default function CollectiveManageMember() {
   const isAdmin = useMemo(() => {
     if (!user || !collective) return false;
     return collective.members.some(
-      (m) => m.user.id === user.id && m.status === "active" && m.role === "admin",
+      (m) =>
+        m.user.username === user.username &&
+        m.status === "active" &&
+        m.role === "admin",
     );
   }, [user, collective]);
 
@@ -175,7 +178,7 @@ export default function CollectiveManageMember() {
   const name =
     `${membership.summary.user.first_name} ${membership.summary.user.last_name}`.trim() ||
     membership.summary.user.username ||
-    `User #${membership.summary.user.id}`;
+    `@${membership.summary.user.username}`;
 
   function handleApprove() {
     void withBusy(() =>
@@ -251,7 +254,7 @@ export default function CollectiveManageMember() {
             <dd>
               {membership.approved_by
                 ? `${membership.approved_by.first_name} ${membership.approved_by.last_name}`.trim() ||
-                  `User #${membership.approved_by.id}`
+                  `@${membership.approved_by.username}`
                 : "—"}
             </dd>
           </div>

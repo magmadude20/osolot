@@ -100,20 +100,21 @@ Current status: Implementing server, vibe-coded client
   * ~~Only show mutual collectives~~
   * Only show items in mutual collectives
 * Offer/request management
-  * Create/edit offer/request
-    * Require verified email
-  * Sharing configuration
-    * Public
-    * (Specific) collectives
-    * Hidden
+  * ~~Create/edit offer/request~~
+    * ~~Require verified email~~
+  * ~~Sharing configuration~~
+    * ~~Public~~
+    * ~~(Specific) collectives~~
+    * ~~Hidden~~
 * View offers/requests
-  * List view
+  * ~~List view~~
   * Map view
   * Search / filter by
     * Location (default)
     * Collective
     * User
     * Title
+    * Category
 * Contact owners
   * Require verified email
   * Send email w/ replyto
@@ -129,6 +130,7 @@ Current status: Implementing server, vibe-coded client
   * Hosting, etc
   * Rewrite client
   * Somewhat reasonable test coverage
+  * Basic logging and monitoring
 
 ### Future (in rough order)
 
@@ -144,7 +146,7 @@ This includes a lot of stuff that probably won't be implemented for like a year+
   * Sharing with friends
   * Friend circles / sharing presets
 * Android/iOS app
-  * Webview
+  * Webview to start
 * Notifications
   * User responded to your post
   * User requests to join your collective
@@ -174,6 +176,11 @@ This includes a lot of stuff that probably won't be implemented for like a year+
   * Report users or posts
   * Block users
   * (Admin) ban users
+* Further productionization
+  * Caching
+  * Redundancy
+  * Idempotency
+  * Server/database colocation
 * Events
   * Create/edit event
   * Add needed items to an event (e.g. potluck)

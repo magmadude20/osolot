@@ -67,23 +67,31 @@ class TestUser:
         return base
 
     @staticmethod
-    def _assert_response(response, raise_on_error: bool = True):
-        if raise_on_error and response.status_code != 200:
+    def _assert_response(response, expected_status: int = 200, raise_on_error: bool = True):
+        if raise_on_error and response.status_code != expected_status:
             raise AssertionError(
-                f"Failed to {response.status_code}: {response.content}"
+                f"Incorrect status code: {response.status_code} != {expected_status}: {response.content}"
             )
         return response
 
-    def create_collective(self, raise_on_error: bool = True, **overrides: Any):
+    def create_collective(
+        self, *, expected_status: int = 200, raise_on_error: bool = True, **overrides: Any
+    ):
         return self._assert_response(
             self.send_request(
                 "post", "/api/collectives/", data=self.collective_payload(**overrides)
             ),
+            expected_status,
             raise_on_error,
         )
 
     def update_collective(
-        self, slug: str, raise_on_error: bool = True, **overrides: Any
+        self,
+        slug: str,
+        *,
+        expected_status: int = 200,
+        raise_on_error: bool = True,
+        **overrides: Any,
     ):
         return self._assert_response(
             self.send_request(
@@ -91,23 +99,31 @@ class TestUser:
                 f"/api/collectives/{slug}",
                 data=self.collective_payload(**overrides),
             ),
+            expected_status,
             raise_on_error,
         )
 
-    def list_collectives(self, raise_on_error: bool = True):
+    def list_collectives(self, *, expected_status: int = 200, raise_on_error: bool = True):
         return self._assert_response(
             self.send_request("get", "/api/collectives/"),
+            expected_status,
             raise_on_error,
         )
 
-    def get_collective(self, slug: str, raise_on_error: bool = True):
-        return (
-            self._assert_response(self.send_request("get", f"/api/collectives/{slug}")),
+    def get_collective(self, slug: str, *, expected_status: int = 200, raise_on_error: bool = True):
+        return self._assert_response(
+            self.send_request("get", f"/api/collectives/{slug}"),
+            expected_status,
             raise_on_error,
         )
 
     def join_collective(
-        self, slug: str, application_message: str = "", raise_on_error: bool = True
+        self,
+        slug: str,
+        application_message: str = "",
+        *,
+        expected_status: int = 200,
+        raise_on_error: bool = True,
     ):
         return self._assert_response(
             self.send_request(
@@ -115,18 +131,25 @@ class TestUser:
                 f"/api/collectives/{slug}/join",
                 data={"application_message": application_message},
             ),
+            expected_status,
             raise_on_error,
         )
 
-    def list_collective_members(self, slug: str, raise_on_error: bool = True):
+    def list_collective_members(
+        self, slug: str, *, expected_status: int = 200, raise_on_error: bool = True
+    ):
         return self._assert_response(
             self.send_request("get", f"/api/collectives/{slug}/members"),
+            expected_status,
             raise_on_error,
         )
 
-    def get_membership(self, slug: str, username: str, raise_on_error: bool = True):
+    def get_membership(
+        self, slug: str, username: str, *, expected_status: int = 200, raise_on_error: bool = True
+    ):
         return self._assert_response(
             self.send_request("get", f"/api/collectives/{slug}/membership/{username}"),
+            expected_status,
             raise_on_error,
         )
 
@@ -135,6 +158,8 @@ class TestUser:
         slug: str,
         username: str,
         data: dict[str, Any],
+        *,
+        expected_status: int = 200,
         raise_on_error: bool = True,
     ):
         return self._assert_response(
@@ -143,15 +168,22 @@ class TestUser:
                 f"/api/collectives/{slug}/membership/{username}",
                 data=data,
             ),
+            expected_status,
             raise_on_error,
         )
 
     def leave_collective(
-        self, slug: str, username: str | None = None, raise_on_error: bool = True
+        self,
+        slug: str,
+        username: str | None = None,
+        *,
+        expected_status: int = 200,
+        raise_on_error: bool = True,
     ):
         who = username or self.user.username
         return self._assert_response(
             self.client.delete(f"/api/collectives/{slug}/membership/{who}"),
+            expected_status,
             raise_on_error,
         )
 

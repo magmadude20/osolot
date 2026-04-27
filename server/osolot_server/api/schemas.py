@@ -1,6 +1,6 @@
 from ninja import Field, ModelSchema, Schema
 
-from ..models import Collective, Membership, User
+from ..models import Collective, Membership, Post, User
 
 ### Common
 
@@ -15,7 +15,7 @@ class MessageOut(Schema):
 class UserSummary(ModelSchema):
     class Meta:
         model = User
-        fields = ["id", "username", "first_name", "last_name"]
+        fields = ["username", "first_name", "last_name"]
         # Future: relationship summary, e.g. 'friend of friend'
 
 
@@ -33,7 +33,40 @@ class MembershipSummary(Schema):
     role: Membership.Role
 
 
+class PostSummary(ModelSchema):
+    owner: UserSummary
+
+    class Meta:
+        model = Post
+        fields = ["slug", "type", "title"]
+
+
 ### Detail Schemas, for display of a single entity.
+
+
+class PostDetail(ModelSchema):
+    owner: UserSummary = Field(
+        ..., read_only=True, description="The user who owns the post."
+    )
+
+    # The collectives that this post is shared with.
+    # Only populated for a user's own posts
+    shared_collectives: list[CollectiveSummary] | None = None
+
+    class Meta:
+        model = Post
+        fields = [
+            "slug",
+            "created_at",
+            "updated_at",
+            "public",
+            "type",
+            "title",
+            "description",
+            # Only populated for a user's own posts
+            "share_with_new_collectives_default",
+        ]
+        optional = ["share_with_new_collectives_default"]
 
 
 class UserDetail(Schema):
@@ -114,13 +147,10 @@ class VerifyEmailConfirmIn(Schema):
 
 
 # A user's own profile, including private fields.
-
-
 class UserProfile(ModelSchema):
     class Meta:
         model = User
         fields = [
-            "id",
             "username",
             "email",
             "email_verified",
@@ -171,3 +201,19 @@ class UpdateMembershipRequest(Schema):
         None, description="Admin and moderators only."
     )
     role: Membership.Role | None = Field(None, description="Admin only.")
+
+
+### Post
+
+
+# User-configurable data.
+class PostSettings(Schema):
+    type: Post.PostType = Field(Post.PostType.OFFER)
+    title: str = Field(..., min_length=1, max_length=255)
+    description: str = Field("", max_length=10_000)
+
+    # Only visible for a user's own posts:
+
+    public: bool
+    share_with_new_collectives_default: bool
+    shared_collective_slugs: list[str]

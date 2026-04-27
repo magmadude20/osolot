@@ -21,7 +21,6 @@ class UsersApiTests(TestCase):
             visibility=Collective.Visibility.PUBLIC,
             admission_type=Collective.AdmissionType.OPEN,
         )
-        self.assertEqual(created.status_code, 200)
         slug = json.loads(created.content)["summary"]["slug"]
 
         viewer_tu = TestUser(username="vieweru", email="vieweru@example.com")
@@ -44,8 +43,7 @@ class UsersApiTests(TestCase):
     ):
         solo = TestUser(username="solo_prof", email="solo_prof@example.com")
         solo.login()
-        created = solo.create_collective(name="Solo Coll", description="x")
-        self.assertEqual(created.status_code, 200)
+        solo.create_collective(name="Solo Coll", description="x")
 
         r = self.client.get("/api/users/solo_prof")
         self.assertEqual(r.status_code, 200)

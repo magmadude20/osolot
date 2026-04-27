@@ -79,7 +79,7 @@ export default function CollectiveDetail() {
   const isActiveMember = useMemo(() => {
     if (!user || !collective) return false;
     return collective.members.some(
-      (m) => m.user.id === user.id && m.status === "active",
+      (m) => m.user.username === user.username && m.status === "active",
     );
   }, [user, collective]);
 
@@ -102,7 +102,7 @@ export default function CollectiveDetail() {
   const isAdmin = useMemo(() => {
     if (!user || !collective) return false;
     return collective.members.some(
-      (m) => m.user.id === user.id && m.role === "admin",
+      (m) => m.user.username === user.username && m.role === "admin",
     );
   }, [user, collective]);
 
@@ -110,7 +110,7 @@ export default function CollectiveDetail() {
     if (!user || !collective) return false;
     return collective.members.some(
       (m) =>
-        m.user.id === user.id &&
+        m.user.username === user.username &&
         m.status === "active" &&
         (m.role === "admin" || m.role === "moderator"),
     );
@@ -285,7 +285,7 @@ export default function CollectiveDetail() {
                       .join(" ")
                       .trim() || m.user.username;
                   return (
-                    <li key={`${m.user.id}-${m.collective.slug}`}>
+                    <li key={`${m.user.username}-${m.collective.slug}`}>
                       <Link
                         to={`/users/${encodeURIComponent(m.user.username)}`}
                         state={{

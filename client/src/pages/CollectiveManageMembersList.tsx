@@ -50,7 +50,7 @@ export default function CollectiveManageMembersList() {
     if (!user || !collective) return false;
     return collective.members.some(
       (m) =>
-        m.user.id === user.id &&
+        m.user.username === user.username &&
         m.status === "active" &&
         (m.role === "admin" || m.role === "moderator"),
     );
@@ -143,7 +143,7 @@ export default function CollectiveManageMembersList() {
           const name =
             `${m.user.first_name} ${m.user.last_name}`.trim() ||
             username ||
-            `User #${m.user.id}`;
+            `@${m.user.username}`;
           const pending = m.status === "pending";
           const href = `/collectives/${slug}/members/manage/${username}`;
 

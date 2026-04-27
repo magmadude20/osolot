@@ -10,6 +10,9 @@ class MembershipQuerySet(models.QuerySet):
     def for_collective(self, collective: Collective):
         return self.filter(collective=collective)
 
+    def for_collective_slugs(self, collective_slugs):
+        return self.filter(collective__slug__in=collective_slugs)
+
     def for_user(self, user: User):
         return self.filter(user=user)
 
@@ -22,6 +25,16 @@ class Membership(models.Model):
 
     collective = models.ForeignKey(Collective, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # Timestamps
+    applied_at = models.DateTimeField(auto_now_add=True)
+    joined_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Application info
+    application_message = models.TextField(
+        blank=True, help_text="Message accompanying an application."
+    )
     approved_by = models.ForeignKey(
         User,
         null=True,
@@ -29,9 +42,8 @@ class Membership(models.Model):
         on_delete=models.SET_NULL,
         related_name="memberships_approved",
     )
-    application_message = models.TextField(
-        blank=True, help_text="Message accompanying an application."
-    )
+
+    # Membership info
 
     class Status(models.TextChoices):
         ACTIVE = "active"
@@ -49,9 +61,6 @@ class Membership(models.Model):
         MEMBER = "member"
 
     role = models.CharField(max_length=31, choices=Role.choices, default=Role.MEMBER)
-    applied_at = models.DateTimeField(auto_now_add=True)
-    joined_at = models.DateTimeField(null=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
@@ -68,7 +77,9 @@ class Membership(models.Model):
         return f"{self.user.email} in {self.collective.name}"
 
     @classmethod
-    def find_for(cls, user: User | None, collective: Collective | None) -> Membership | None:
+    def find_for(
+        cls, user: User | None, collective: Collective | None
+    ) -> Membership | None:
         if user is None or collective is None:
             return None
         return cls.objects.filter(user=user, collective=collective).first()
@@ -92,7 +103,9 @@ class Membership(models.Model):
         cls, username: str, collective_slug: str
     ) -> Membership | None:
         return (
-            cls.objects.filter(user__username=username, collective__slug=collective_slug)
+            cls.objects.filter(
+                user__username=username, collective__slug=collective_slug
+            )
             .select_related("collective", "user")
             .first()
         )
