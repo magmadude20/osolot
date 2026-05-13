@@ -43,6 +43,8 @@ Similar projects, that are just a bit off from what I'm imagining. They may work
 * [Bonfire](http://bonfirenetworks.org)
 * [Inventaire](https://inventaire.io/)
 * [Borrowme](https://borrowme.co/)
+* [Community Gearbox](https://communitygearbox.com/)
+* [Community Supplies](https://communitysupplies.org)
 
 ## On trust
 
