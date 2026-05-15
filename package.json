@@ -1,0 +1,28 @@
+{
+  "name": "osolot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "osolot helps people pool their resources.",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "workers/*"
+  ],
+  "scripts": {
+    "worker:dev": "npm run dev -w osolot-api",
+    "worker:deploy": "npm run deploy -w osolot-api",
+
+    "android:dev": "npm run android:dev -w mobile",
+    "android": "npm run android -w mobile",
+    "ios": "npm run ios -w mobile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/magmadude20/osolot.git"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "react-dom": "19.1.0",
+    "react-native-web": "^0.21.0"
+  }
+}

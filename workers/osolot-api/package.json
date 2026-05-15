@@ -1,0 +1,19 @@
+{
+  "name": "osolot-api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@osolot/shared": "*",
+    "@supabase/supabase-js": "^2.105.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250506.0",
+    "typescript": "^5.7.3",
+    "wrangler": "^4.91.0"
+  }
+}

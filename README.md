@@ -39,12 +39,12 @@ Nextdoor
 Similar projects, that are just a bit off from what I'm imagining. They may work better for your use case:
 
 * [Peerby](https://www.peerby.com/en-us)
-* [Neigborgoods](http://neighborgoods.com)
-* [Bonfire](http://bonfirenetworks.org)
-* [Inventaire](https://inventaire.io/)
+* [Neigborgoods](https://github.com/NeighborGoods-LibSoc/neighbor-goods) ([github](https://github.com/NeighborGoods-LibSoc/neighbor-goods))
+* [Bonfire](http://bonfirenetworks.org) ([github](https://github.com/bonfire-networks))
+* [Inventaire](https://inventaire.io/) ([github](https://github.com/inventaire))
 * [Borrowme](https://borrowme.co/)
 * [Community Gearbox](https://communitygearbox.com/)
-* [Community Supplies](https://communitysupplies.org)
+* [Community Supplies](https://communitysupplies.org/) ([github](https://github.com/The-Relational-Technology-Project/community-supplies), [fork](https://github.com/studentrebellion/community-supplies))
 
 ## On trust
 
