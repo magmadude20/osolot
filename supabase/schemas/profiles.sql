@@ -1,10 +1,15 @@
--- Initial migration for public.profiles table.
+-- Declarative schema for profiles table
+-- See: https://supabase.com/docs/guides/local-development/declarative-database-schemas
+
+-- After editing, run: supabase db diff -f <short_description>
 
 create table public.profiles (
   user_id uuid primary key references auth.users (id) on delete cascade,
   username text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  -- Use >= / <= and ::text on the pattern so the expression matches PostgreSQL’s
+  -- stored form; otherwise migra sees a change every diff (between vs two compares).
   constraint profiles_username_format check (
     (
       (username is null)

@@ -1,9 +1,10 @@
 name = "osolot-api"
 main = "src/index.ts"
 compatibility_date = "2025-05-13"
+compatibility_flags = [ "nodejs_compat" ]
 
 [observability]
-enabled = false
+enabled = true
 head_sampling_rate = 1
 
 [observability.logs]

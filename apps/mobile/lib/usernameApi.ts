@@ -17,19 +17,28 @@ function assertWorkerConfigured(): void {
   }
 }
 
+function apiErrorMessage(json: unknown, fallback: string): string {
+  if (json && typeof json === "object" && "error" in json) {
+    const err = json.error;
+    if (typeof err === "string") {
+      return err;
+    }
+  }
+  return fallback;
+}
+
 async function authFetch(
   accessToken: string,
   path: string,
   init?: RequestInit,
 ): Promise<Response> {
   assertWorkerConfigured();
+  const headers = new Headers(init?.headers);
+  headers.set("content-type", "application/json");
+  headers.set("Authorization", `Bearer ${accessToken}`);
   return fetch(`${workerBase}${path}`, {
     ...init,
-    headers: {
-      "content-type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-      ...init?.headers,
-    },
+    headers,
   });
 }
 
@@ -39,10 +48,9 @@ export async function getUsername(
   const res = await authFetch(accessToken, "/username", { method: "GET" });
   const json: unknown = await res.json().catch(() => null);
   if (!res.ok) {
-    const err = json && typeof json === "object" && "error" in json
-      ? String((json as { error: unknown }).error)
-      : res.statusText;
-    throw new Error(err || `HTTP ${res.status}`);
+    throw new Error(
+      apiErrorMessage(json, res.statusText) || `HTTP ${String(res.status)}`,
+    );
   }
   const parsed = usernameResponseSchema.safeParse(json);
   if (!parsed.success) {
@@ -68,10 +76,9 @@ export async function putUsername(
     throw new UsernameTakenError();
   }
   if (!res.ok) {
-    const err = json && typeof json === "object" && "error" in json
-      ? String((json as { error: unknown }).error)
-      : res.statusText;
-    throw new Error(err || `HTTP ${res.status}`);
+    throw new Error(
+      apiErrorMessage(json, res.statusText) || `HTTP ${String(res.status)}`,
+    );
   }
   const parsed = usernameResponseSchema.safeParse(json);
   if (!parsed.success) {
@@ -93,10 +100,9 @@ export async function deleteUsername(
   const res = await authFetch(accessToken, "/username", { method: "DELETE" });
   const json: unknown = await res.json().catch(() => null);
   if (!res.ok) {
-    const err = json && typeof json === "object" && "error" in json
-      ? String((json as { error: unknown }).error)
-      : res.statusText;
-    throw new Error(err || `HTTP ${res.status}`);
+    throw new Error(
+      apiErrorMessage(json, res.statusText) || `HTTP ${String(res.status)}`,
+    );
   }
   const parsed = usernameResponseSchema.safeParse(json);
   if (!parsed.success) {

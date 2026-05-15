@@ -1,15 +1,40 @@
-import { createClient } from "@supabase/supabase-js";
 import {
   usernamePutBodySchema,
   usernameResponseSchema,
 } from "@osolot/shared";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "../supabase-types/generated-types";
+import type { Profile, ProfileInsert, ProfileUpdate } from "../supabase-types/table-types";
 
 export interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
 }
 
-function json(data: unknown, status = 200, extraHeaders: HeadersInit = {}) {
+function adminClient(env: Env): SupabaseClient<Database> {
+  return createClient<Database>(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+}
+
+/** Map `profiles` row to the HTTP username payload (camelCase + Zod). */
+function jsonUsernameResponse(row: Profile) {
+  return usernameResponseSchema.parse({
+    userId: row.user_id,
+    username: row.username,
+    updatedAt: row.updated_at,
+  });
+}
+
+function json(
+  data: unknown,
+  status = 200,
+  extraHeaders: Record<string, string> = {},
+) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
@@ -31,32 +56,22 @@ function corsHeaders(): Record<string, string> {
 
 function getBearer(request: Request): string | null {
   const h = request.headers.get("Authorization");
-  if (!h?.startsWith("Bearer ")) return null;
+  if (!h?.startsWith("Bearer ")) {
+    return null;
+  }
   const token = h.slice(7).trim();
   return token.length ? token : null;
 }
 
-function adminClient(env: Env) {
-  return createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    },
-  });
-}
-
 async function ensureProfileRow(
-  supabase: ReturnType<typeof adminClient>,
+  supabase: SupabaseClient<Database>,
   userId: string,
 ): Promise<void> {
-  const { error } = await supabase.from("profiles").upsert(
-    { user_id: userId },
-    {
-      onConflict: "user_id",
-      ignoreDuplicates: true,
-    },
-  );
+  const insert: ProfileInsert = { user_id: userId };
+  const { error } = await supabase.from("profiles").upsert(insert, {
+    onConflict: "user_id",
+    ignoreDuplicates: true,
+  });
   if (error) throw error;
 }
 
@@ -97,7 +112,7 @@ export default {
         await ensureProfileRow(supabase, userId);
         const { data, error } = await supabase
           .from("profiles")
-          .select("user_id, username, updated_at")
+          .select()
           .eq("user_id", userId)
           .maybeSingle();
 
@@ -106,12 +121,7 @@ export default {
           return json({ error: "not_found" }, 404);
         }
 
-        const body = usernameResponseSchema.parse({
-          userId: data.user_id,
-          username: data.username,
-          updatedAt: data.updated_at,
-        });
-        return json(body);
+        return json(jsonUsernameResponse(data));
       } catch (e) {
         console.error(e);
         return json({ error: "server_error" }, 500);
@@ -138,11 +148,12 @@ export default {
 
       try {
         await ensureProfileRow(supabase, userId);
+        const update: ProfileUpdate = { username };
         const { data, error } = await supabase
           .from("profiles")
-          .update({ username })
+          .update(update)
           .eq("user_id", userId)
-          .select("user_id, username, updated_at")
+          .select()
           .maybeSingle();
 
         if (error) {
@@ -156,12 +167,7 @@ export default {
           return json({ error: "not_found" }, 404);
         }
 
-        const body = usernameResponseSchema.parse({
-          userId: data.user_id,
-          username: data.username,
-          updatedAt: data.updated_at,
-        });
-        return json(body);
+        return json(jsonUsernameResponse(data));
       } catch (e) {
         if (
           e &&
@@ -179,11 +185,12 @@ export default {
     if (request.method === "DELETE") {
       try {
         await ensureProfileRow(supabase, userId);
+        const update: ProfileUpdate = { username: null };
         const { data, error } = await supabase
           .from("profiles")
-          .update({ username: null })
+          .update(update)
           .eq("user_id", userId)
-          .select("user_id, username, updated_at")
+          .select()
           .maybeSingle();
 
         if (error) throw error;
@@ -191,12 +198,7 @@ export default {
           return json({ error: "not_found" }, 404);
         }
 
-        const body = usernameResponseSchema.parse({
-          userId: data.user_id,
-          username: data.username,
-          updatedAt: data.updated_at,
-        });
-        return json(body);
+        return json(jsonUsernameResponse(data));
       } catch (e) {
         console.error(e);
         return json({ error: "server_error" }, 500);

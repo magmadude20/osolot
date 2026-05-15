@@ -9,9 +9,17 @@
     "workers/*"
   ],
   "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "worker:dev": "npm run dev -w osolot-api",
     "worker:deploy": "npm run deploy -w osolot-api",
-
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset --local",
+    "db:make-migration": "supabase db diff --local -f",
+    "db:migrate": "supabase migration up --local",
+    "db:types": "supabase gen types --local > workers/osolot-api/database-types/generated-types.d.ts",
+    "db:update": "npm run db:start && npm run db:make-migration && npm run db:migrate && npm run db:types",
     "android:dev": "npm run android:dev -w mobile",
     "android": "npm run android -w mobile",
     "ios": "npm run ios -w mobile"
@@ -21,6 +29,13 @@
     "url": "git+https://github.com/magmadude20/osolot.git"
   },
   "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "supabase": "^2.98.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.0"
+  },
   "dependencies": {
     "react-dom": "19.1.0",
     "react-native-web": "^0.21.0"

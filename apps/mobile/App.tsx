@@ -1,25 +1,25 @@
 import type { UsernameResponse } from "@osolot/shared";
 import type { Session } from "@supabase/supabase-js";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    ActivityIndicator,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 import { assertSupabaseConfigured, supabase } from "./lib/supabase";
 import {
-  deleteUsername,
-  getUsername,
-  putUsername,
-  UsernameTakenError,
+    deleteUsername,
+    getUsername,
+    putUsername,
+    UsernameTakenError,
 } from "./lib/usernameApi";
 
 export default function App() {
@@ -35,7 +35,7 @@ export default function App() {
       return;
     }
 
-    supabase.auth.getSession().then(({ data }) => {
+    void supabase.auth.getSession().then(({ data }) => {
       setSession(data.session ?? null);
       setBooting(false);
     });
@@ -46,7 +46,9 @@ export default function App() {
       setSession(next);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (booting) {
@@ -132,14 +134,18 @@ function AuthPanel() {
       />
       <Pressable
         style={[styles.button, busy && styles.buttonDisabled]}
-        onPress={signIn}
+        onPress={() => {
+          void signIn();
+        }}
         disabled={busy}
       >
         <Text style={styles.buttonText}>Sign in</Text>
       </Pressable>
       <Pressable
         style={[styles.buttonSecondary, busy && styles.buttonDisabled]}
-        onPress={signUp}
+        onPress={() => {
+          void signUp();
+        }}
         disabled={busy}
       >
         <Text style={styles.buttonSecondaryText}>Create account</Text>
@@ -156,24 +162,28 @@ function UsernamePanel({ session }: { session: Session }) {
 
   const token = session.access_token;
 
+  const cancelledRef = useRef(false);
+
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
+    cancelledRef.current = false;
+    void (async () => {
       setLoading(true);
       try {
         const p = await getUsername(token);
-        if (!cancelled) {
-          setProfile(p);
-          setDraft(p.username ?? "");
-        }
+        if (cancelledRef.current) return;
+        setProfile(p);
+        setDraft(p.username ?? "");
       } catch (e) {
-        if (!cancelled) Alert.alert("Load failed", String(e));
+        if (cancelledRef.current) return;
+        Alert.alert("Load failed", String(e));
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelledRef.current) {
+          setLoading(false);
+        }
       }
     })();
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
     };
   }, [token]);
 
@@ -242,19 +252,28 @@ function UsernamePanel({ session }: { session: Session }) {
       />
       <Pressable
         style={[styles.button, saving && styles.buttonDisabled]}
-        onPress={save}
+        onPress={() => {
+          void save();
+        }}
         disabled={saving}
       >
         <Text style={styles.buttonText}>Save</Text>
       </Pressable>
       <Pressable
         style={[styles.buttonSecondary, saving && styles.buttonDisabled]}
-        onPress={clearUsername}
+        onPress={() => {
+          void clearUsername();
+        }}
         disabled={saving}
       >
         <Text style={styles.buttonSecondaryText}>Clear username</Text>
       </Pressable>
-      <Pressable style={styles.linkButton} onPress={signOut}>
+      <Pressable
+        style={styles.linkButton}
+        onPress={() => {
+          void signOut();
+        }}
+      >
         <Text style={styles.linkText}>Sign out</Text>
       </Pressable>
     </View>
