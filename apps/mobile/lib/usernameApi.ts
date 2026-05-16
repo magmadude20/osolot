@@ -45,7 +45,7 @@ async function authFetch(
 export async function getUsername(
   accessToken: string,
 ): Promise<UsernameResponse> {
-  const res = await authFetch(accessToken, "/username", { method: "GET" });
+  const res = await authFetch(accessToken, "/users/me", { method: "GET" });
   const json: unknown = await res.json().catch(() => null);
   if (!res.ok) {
     throw new Error(
@@ -67,7 +67,7 @@ export async function putUsername(
   if (!body.success) {
     throw new Error(body.error.issues.map((i) => i.message).join("; "));
   }
-  const res = await authFetch(accessToken, "/username", {
+  const res = await authFetch(accessToken, "/users/me", {
     method: "PUT",
     body: JSON.stringify(body.data),
   });
@@ -97,7 +97,7 @@ export class UsernameTakenError extends Error {
 export async function deleteUsername(
   accessToken: string,
 ): Promise<UsernameResponse> {
-  const res = await authFetch(accessToken, "/username", { method: "DELETE" });
+  const res = await authFetch(accessToken, "/users/me", { method: "DELETE" });
   const json: unknown = await res.json().catch(() => null);
   if (!res.ok) {
     throw new Error(

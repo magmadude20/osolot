@@ -22,6 +22,7 @@
     "db:update": "npm run db:start && npm run db:make-migration && npm run db:migrate && npm run db:types",
     "android:dev": "npm run android:dev -w mobile",
     "android": "npm run android -w mobile",
+    "web": "npm run web -w mobile",
     "ios": "npm run ios -w mobile"
   },
   "repository": {
