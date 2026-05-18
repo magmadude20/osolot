@@ -5,7 +5,7 @@
   "scripts": {
     "start": "expo start",
     "android:dev": "expo run:android",
-    "android": "expo run:android --variant release",
+    "android": "expo run:android --variant release --no-build-cache",
     "ios": "expo run:ios",
     "android:start": "expo start --android",
     "ios:start": "expo start --ios",

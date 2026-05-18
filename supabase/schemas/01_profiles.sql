@@ -5,28 +5,19 @@
 
 create table public.profiles (
   user_id uuid primary key references auth.users (id) on delete cascade,
-  username text,
+  username extensions.citext not null unique,
+  bio text not null default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  -- Use >= / <= and ::text on the pattern so the expression matches PostgreSQL’s
-  -- stored form; otherwise migra sees a change every diff (between vs two compares).
   constraint profiles_username_format check (
     (
-      (username is null)
-      or (
-        (
-          (char_length(username) >= 3)
-          and (char_length(username) <= 32)
-        )
-        and (username ~ '^[a-z0-9_]+$'::text)
-      )
+      (char_length(username::text) >= 3)
+      and (char_length(username::text) <= 32)
     )
-  )
+    and (username::text ~ '^[\w.-]+$'::text)
+  ),
+  constraint profiles_bio_length check ((char_length(bio) <= 10000))
 );
-
-create unique index profiles_username_lower_uidx
-  on public.profiles (lower(username))
-  where username is not null;
 
 alter table public.profiles enable row level security;
 

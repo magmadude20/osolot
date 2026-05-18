@@ -1,14 +1,16 @@
 import { z } from "zod";
 
-const USERNAME_RE = /^[a-z0-9_]+$/;
+const USERNAME_RE = /^[\w.-]+$/;
 
 export const usernameInputSchema = z
   .string()
   .trim()
   .min(3, "Username must be at least 3 characters")
   .max(32, "Username must be at most 32 characters")
-  .regex(USERNAME_RE, "Only lowercase letters, digits, and underscore")
-  .transform((s) => s.toLowerCase());
+  .regex(
+    USERNAME_RE,
+    "Only letters, digits, underscore, period, and hyphen",
+  );
 
 export type UsernameInput = z.infer<typeof usernameInputSchema>;
 
@@ -18,10 +20,21 @@ export const usernamePutBodySchema = z.object({
 
 export type UsernamePutBody = z.infer<typeof usernamePutBodySchema>;
 
-export const usernameResponseSchema = z.object({
+export const usernameParamSchema = z.object({
+  username: usernameInputSchema,
+});
+
+export const profileResponseSchema = z.object({
   userId: z.string().uuid(),
-  username: z.string().nullable(),
+  username: z.string(),
+  bio: z.string(),
   updatedAt: z.string(),
 });
 
-export type UsernameResponse = z.infer<typeof usernameResponseSchema>;
+export type ProfileResponse = z.infer<typeof profileResponseSchema>;
+
+/** @deprecated Use profileResponseSchema */
+export const usernameResponseSchema = profileResponseSchema;
+
+/** @deprecated Use ProfileResponse */
+export type UsernameResponse = ProfileResponse;

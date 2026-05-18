@@ -34,24 +34,270 @@ export type Database = {
   }
   public: {
     Tables: {
-      profiles: {
+      friendships: {
         Row: {
           created_at: string
+          id: string
+          source_id: string
+          status: string
+          target_id: string
           updated_at: string
-          user_id: string
-          username: string | null
         }
         Insert: {
           created_at?: string
+          id?: string
+          source_id: string
+          status?: string
+          target_id: string
           updated_at?: string
-          user_id: string
-          username?: string | null
         }
         Update: {
           created_at?: string
+          id?: string
+          source_id?: string
+          status?: string
+          target_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friendships_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "friendships_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          admission_type: string
+          application_question: string
+          created_at: string
+          description: string
+          id: string
+          name: string
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          admission_type?: string
+          application_question?: string
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          admission_type?: string
+          application_question?: string
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
+      memberships: {
+        Row: {
+          application_message: string
+          applied_at: string
+          approved_by: string | null
+          group_id: string
+          id: string
+          joined_at: string | null
+          role: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_message?: string
+          applied_at?: string
+          approved_by?: string | null
+          group_id: string
+          id?: string
+          joined_at?: string | null
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_message?: string
+          applied_at?: string
+          approved_by?: string | null
+          group_id?: string
+          id?: string
+          joined_at?: string | null
+          role?: string
+          status?: string
           updated_at?: string
           user_id?: string
-          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memberships_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "memberships_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      post_shared_friendships: {
+        Row: {
+          friendship_id: string
+          post_id: string
+        }
+        Insert: {
+          friendship_id: string
+          post_id: string
+        }
+        Update: {
+          friendship_id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_shared_friendships_friendship_id_fkey"
+            columns: ["friendship_id"]
+            isOneToOne: false
+            referencedRelation: "friendships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_shared_friendships_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_shared_memberships: {
+        Row: {
+          membership_id: string
+          post_id: string
+        }
+        Insert: {
+          membership_id: string
+          post_id: string
+        }
+        Update: {
+          membership_id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_shared_memberships_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_shared_memberships_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          owner_id: string
+          public: boolean
+          share_with_new_friends_default: boolean
+          share_with_new_groups_default: boolean
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          owner_id: string
+          public?: boolean
+          share_with_new_friends_default?: boolean
+          share_with_new_groups_default?: boolean
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          owner_id?: string
+          public?: boolean
+          share_with_new_friends_default?: boolean
+          share_with_new_groups_default?: boolean
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          bio: string
+          created_at: string
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          bio?: string
+          created_at?: string
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          bio?: string
+          created_at?: string
+          updated_at?: string
+          user_id?: string
+          username?: string
         }
         Relationships: []
       }

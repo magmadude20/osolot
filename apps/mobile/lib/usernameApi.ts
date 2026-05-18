@@ -1,7 +1,7 @@
 import {
+  profileResponseSchema,
   usernamePutBodySchema,
-  usernameResponseSchema,
-  type UsernameResponse,
+  type ProfileResponse,
 } from "@osolot/shared";
 
 const workerBase = (process.env.EXPO_PUBLIC_WORKER_URL ?? "").replace(
@@ -42,27 +42,37 @@ async function authFetch(
   });
 }
 
-export async function getUsername(
+export class ProfileNotFoundError extends Error {
+  constructor() {
+    super("not_found");
+    this.name = "ProfileNotFoundError";
+  }
+}
+
+export async function getProfile(
   accessToken: string,
-): Promise<UsernameResponse> {
+): Promise<ProfileResponse> {
   const res = await authFetch(accessToken, "/users/me", { method: "GET" });
   const json: unknown = await res.json().catch(() => null);
+  if (res.status === 404) {
+    throw new ProfileNotFoundError();
+  }
   if (!res.ok) {
     throw new Error(
       apiErrorMessage(json, res.statusText) || `HTTP ${String(res.status)}`,
     );
   }
-  const parsed = usernameResponseSchema.safeParse(json);
+  const parsed = profileResponseSchema.safeParse(json);
   if (!parsed.success) {
-    throw new Error("Invalid response from username API");
+    throw new Error("Invalid response from profile API");
   }
   return parsed.data;
 }
 
-export async function putUsername(
+export async function putProfile(
   accessToken: string,
   username: string,
-): Promise<UsernameResponse> {
+): Promise<ProfileResponse> {
   const body = usernamePutBodySchema.safeParse({ username });
   if (!body.success) {
     throw new Error(body.error.issues.map((i) => i.message).join("; "));
@@ -80,9 +90,9 @@ export async function putUsername(
       apiErrorMessage(json, res.statusText) || `HTTP ${String(res.status)}`,
     );
   }
-  const parsed = usernameResponseSchema.safeParse(json);
+  const parsed = profileResponseSchema.safeParse(json);
   if (!parsed.success) {
-    throw new Error("Invalid response from username API");
+    throw new Error("Invalid response from profile API");
   }
   return parsed.data;
 }
@@ -94,19 +104,8 @@ export class UsernameTakenError extends Error {
   }
 }
 
-export async function deleteUsername(
-  accessToken: string,
-): Promise<UsernameResponse> {
-  const res = await authFetch(accessToken, "/users/me", { method: "DELETE" });
-  const json: unknown = await res.json().catch(() => null);
-  if (!res.ok) {
-    throw new Error(
-      apiErrorMessage(json, res.statusText) || `HTTP ${String(res.status)}`,
-    );
-  }
-  const parsed = usernameResponseSchema.safeParse(json);
-  if (!parsed.success) {
-    throw new Error("Invalid response from username API");
-  }
-  return parsed.data;
-}
+/** @deprecated Use getProfile */
+export const getUsername = getProfile;
+
+/** @deprecated Use putProfile */
+export const putUsername = putProfile;

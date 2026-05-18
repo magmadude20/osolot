@@ -1,4 +1,4 @@
-import type { UsernameResponse } from "@osolot/shared";
+import type { ProfileResponse } from "@osolot/shared";
 import type { Session } from "@supabase/supabase-js";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef, useState } from "react";
@@ -16,9 +16,9 @@ import {
 } from "react-native";
 import { assertSupabaseConfigured, supabase } from "./lib/supabase";
 import {
-    deleteUsername,
-    getUsername,
-    putUsername,
+    getProfile,
+    ProfileNotFoundError,
+    putProfile,
     UsernameTakenError,
 } from "./lib/usernameApi";
 
@@ -156,9 +156,10 @@ function AuthPanel() {
 
 function UsernamePanel({ session }: { session: Session }) {
   const [draft, setDraft] = useState("");
-  const [profile, setProfile] = useState<UsernameResponse | null>(null);
+  const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [needsUsername, setNeedsUsername] = useState(false);
 
   const token = session.access_token;
 
@@ -169,13 +170,20 @@ function UsernamePanel({ session }: { session: Session }) {
     void (async () => {
       setLoading(true);
       try {
-        const p = await getUsername(token);
+        const p = await getProfile(token);
         if (cancelledRef.current) return;
         setProfile(p);
-        setDraft(p.username ?? "");
+        setDraft(p.username);
+        setNeedsUsername(false);
       } catch (e) {
         if (cancelledRef.current) return;
-        Alert.alert("Load failed", String(e));
+        if (e instanceof ProfileNotFoundError) {
+          setProfile(null);
+          setDraft("");
+          setNeedsUsername(true);
+        } else {
+          Alert.alert("Load failed", String(e));
+        }
       } finally {
         if (!cancelledRef.current) {
           setLoading(false);
@@ -190,29 +198,17 @@ function UsernamePanel({ session }: { session: Session }) {
   async function save() {
     setSaving(true);
     try {
-      const p = await putUsername(token, draft);
+      const p = await putProfile(token, draft);
       setProfile(p);
-      Alert.alert("Saved", "Username updated.");
+      setDraft(p.username);
+      setNeedsUsername(false);
+      Alert.alert("Saved", needsUsername ? "Username set." : "Username updated.");
     } catch (e) {
       if (e instanceof UsernameTakenError) {
         Alert.alert("Taken", "That username is already in use.");
       } else {
         Alert.alert("Save failed", String(e));
       }
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function clearUsername() {
-    setSaving(true);
-    try {
-      const p = await deleteUsername(token);
-      setProfile(p);
-      setDraft("");
-      Alert.alert("Cleared", "Username removed.");
-    } catch (e) {
-      Alert.alert("Clear failed", String(e));
     } finally {
       setSaving(false);
     }
@@ -233,15 +229,16 @@ function UsernamePanel({ session }: { session: Session }) {
   return (
     <View style={styles.card}>
       <Text style={styles.title}>Username</Text>
-      <Text style={styles.hint}>
-        Current:{" "}
-        <Text style={styles.mono}>
-          {profile?.username == null || profile.username === ""
-            ? "(none)"
-            : profile.username}
+      {needsUsername ? (
+        <Text style={styles.hint}>Choose a username to finish setting up your profile.</Text>
+      ) : (
+        <Text style={styles.hint}>
+          Current: <Text style={styles.mono}>{profile?.username}</Text>
         </Text>
+      )}
+      <Text style={styles.label}>
+        {needsUsername ? "Username" : "New username"} (3–32 characters, letters, digits, _ . -)
       </Text>
-      <Text style={styles.label}>New username (3–32 characters, a–z, 0–9, _)</Text>
       <TextInput
         style={styles.input}
         autoCapitalize="none"
@@ -258,15 +255,6 @@ function UsernamePanel({ session }: { session: Session }) {
         disabled={saving}
       >
         <Text style={styles.buttonText}>Save</Text>
-      </Pressable>
-      <Pressable
-        style={[styles.buttonSecondary, saving && styles.buttonDisabled]}
-        onPress={() => {
-          void clearUsername();
-        }}
-        disabled={saving}
-      >
-        <Text style={styles.buttonSecondaryText}>Clear username</Text>
       </Pressable>
       <Pressable
         style={styles.linkButton}
