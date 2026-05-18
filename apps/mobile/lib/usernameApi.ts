@@ -103,9 +103,3 @@ export class UsernameTakenError extends Error {
     this.name = "UsernameTakenError";
   }
 }
-
-/** @deprecated Use getProfile */
-export const getUsername = getProfile;
-
-/** @deprecated Use putProfile */
-export const putUsername = putProfile;
