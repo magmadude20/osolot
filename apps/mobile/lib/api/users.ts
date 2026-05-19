@@ -52,7 +52,7 @@ export async function patchMyProfile(
   if (!res.ok) {
     const msg =
       json && typeof json === "object" && "message" in json
-        ? String((json as { message: unknown }).message)
+        ? String((json).message)
         : res.statusText;
     if (
       res.status === 400 &&
@@ -61,7 +61,7 @@ export async function patchMyProfile(
     ) {
       throw new UsernameTakenError();
     }
-    throw new Error(msg || `HTTP ${res.status}`);
+    throw new Error(msg || `HTTP ${String(res.status)}`);
   }
   const out = userProfileSchema.safeParse(json);
   if (!out.success) throw new Error("Invalid response from profile API");

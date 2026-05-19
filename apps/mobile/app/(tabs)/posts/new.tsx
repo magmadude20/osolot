@@ -76,7 +76,7 @@ export default function NewPostScreen() {
         <View style={styles.segmentRow}>
           <Pressable
             style={[styles.segment, type === "offer" && styles.segmentActive]}
-            onPress={() => setType("offer")}
+            onPress={() => { setType("offer"); }}
           >
             <Text
               style={[
@@ -89,7 +89,7 @@ export default function NewPostScreen() {
           </Pressable>
           <Pressable
             style={[styles.segment, type === "request" && styles.segmentActive]}
-            onPress={() => setType("request")}
+            onPress={() => { setType("request"); }}
           >
             <Text
               style={[

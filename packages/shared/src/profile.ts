@@ -29,7 +29,7 @@ export const bioSchema = z.string().max(10000);
 export const userProfileSchema = z.object({
   username: usernameInputSchema,
   bio: bioSchema,
-  email: z.string().email().optional(),
+  email: z.email().optional(),
   emailVerified: z.boolean().optional(),
 });
 
@@ -43,10 +43,10 @@ export const updateProfileRequestSchema = userProfileSchema
 export type UpdateProfileRequest = z.infer<typeof updateProfileRequestSchema>;
 
 export const profileResponseSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.uuid(),
   username: z.string(),
   bio: z.string(),
-  updatedAt: z.string().datetime(),
+  updatedAt: z.iso.datetime(),
 });
 
 export type ProfileResponse = z.infer<typeof profileResponseSchema>;

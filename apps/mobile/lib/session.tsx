@@ -42,7 +42,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setSession(next);
     });
 
-    return () => subscription.unsubscribe();
+    return () => { subscription.unsubscribe(); };
   }, []);
 
   const signOut = useCallback(async () => {

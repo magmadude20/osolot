@@ -17,7 +17,7 @@ export type MembershipSummary = z.infer<typeof membershipSummarySchema>;
 export const joinGroupRequestSchema = z
   .object({
     applicationMessage: applicationMessageSchema.default(""),
-    sharedPostIds: z.array(z.string().uuid()).default([]),
+    sharedPostIds: z.array(z.uuid()).default([]),
   })
   .strict();
 
@@ -26,7 +26,7 @@ export type JoinGroupRequest = z.infer<typeof joinGroupRequestSchema>;
 export const updateMembershipRequestSchema = z
   .object({
     applicationMessage: applicationMessageSchema.nullable().optional(),
-    sharedPostIds: z.array(z.string().uuid()).nullable().optional(),
+    sharedPostIds: z.array(z.uuid()).nullable().optional(),
     status: membershipStatusSchema.nullable().optional(),
     role: membershipRoleSchema.nullable().optional(),
   })
@@ -42,9 +42,9 @@ export const membershipDetailSchema = z.object({
   summary: membershipSummarySchema,
   sharedPosts: z.array(postSummarySchema).nullable().optional(),
   applicationMessage: applicationMessageSchema.nullable().optional(),
-  appliedAt: z.string().datetime().nullable().optional(),
-  joinedAt: z.string().datetime().nullable().optional(),
-  updatedAt: z.string().datetime().nullable().optional(),
+  appliedAt: z.iso.datetime().nullable().optional(),
+  joinedAt: z.iso.datetime().nullable().optional(),
+  updatedAt: z.iso.datetime().nullable().optional(),
   approvedBy: userSummarySchema.nullable().optional(),
 });
 

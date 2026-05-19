@@ -1,17 +1,17 @@
+import { zValidator } from "@hono/zod-validator";
 import {
   updateProfileRequestSchema,
   usernameParamSchema,
 } from "@osolot/shared";
-import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
+import type { Group, Membership } from "../../supabase-types/table-types";
 import { toMembershipSummary } from "../builders/membership";
 import { toUserProfile } from "../builders/profile";
 import { buildUserDetail, toUserSummary } from "../builders/user";
 import type { AppBindings, AppVariables, OptionalAppVariables } from "../env";
 import { getAuthUser } from "../lib/auth-user";
 import { isUniqueViolation, throwOnDbError } from "../lib/db-error";
-import { messageResponse } from "../lib/responses";
 import { findMembershipForUser } from "../lib/permissions/membership";
 import {
   fetchMutualFriendsWithUser,
@@ -20,9 +20,9 @@ import {
   fetchProfileByUsername,
   getFriendshipStatus,
 } from "../lib/permissions/user";
+import { messageResponse } from "../lib/responses";
 import { requireAuth } from "../middleware/auth";
 import { optionalAuth } from "../middleware/optionalAuth";
-import type { Group, Membership } from "../../supabase-types/table-types";
 
 const membershipListSelect = `
   *,

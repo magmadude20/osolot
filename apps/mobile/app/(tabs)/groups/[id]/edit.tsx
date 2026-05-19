@@ -78,7 +78,7 @@ export default function EditGroupScreen() {
           <Text style={styles.label}>Unlisted</Text>
           <Switch
             value={visibility === "unlisted"}
-            onValueChange={(v) => setVisibility(v ? "unlisted" : "public")}
+            onValueChange={(v) => { setVisibility(v ? "unlisted" : "public"); }}
           />
         </View>
         <View style={styles.row}>
@@ -86,7 +86,7 @@ export default function EditGroupScreen() {
           <Switch
             value={admissionType === "application"}
             onValueChange={(v) =>
-              setAdmissionType(v ? "application" : "open")
+              { setAdmissionType(v ? "application" : "open"); }
             }
           />
         </View>

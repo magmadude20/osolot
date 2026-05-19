@@ -60,7 +60,7 @@ export default function NewGroupScreen() {
           <Text style={styles.label}>Unlisted (members only in listings)</Text>
           <Switch
             value={visibility === "unlisted"}
-            onValueChange={(v) => setVisibility(v ? "unlisted" : "public")}
+            onValueChange={(v) => { setVisibility(v ? "unlisted" : "public"); }}
           />
         </View>
         <View style={styles.row}>
@@ -68,7 +68,7 @@ export default function NewGroupScreen() {
           <Switch
             value={admissionType === "application"}
             onValueChange={(v) =>
-              setAdmissionType(v ? "application" : "open")
+              { setAdmissionType(v ? "application" : "open"); }
             }
           />
         </View>

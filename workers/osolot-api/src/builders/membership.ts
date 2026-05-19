@@ -7,8 +7,8 @@ import {
   type MembershipSummary,
 } from "@osolot/shared";
 import type { Group, Membership, Profile } from "../../supabase-types/table-types";
-import type { PostWithOwner } from "../lib/permissions/post";
 import { membershipCanManageMembers } from "../lib/permissions/membership";
+import type { PostWithOwner } from "../lib/permissions/post";
 import { toGroupSummary } from "./group";
 import { toPostSummary } from "./post";
 import { toUserSummary } from "./user";
@@ -61,12 +61,17 @@ export function buildMembershipDetail(input: {
     });
   }
 
+  const updatedAt = new Date(input.membership.updated_at).toISOString();
+  const appliedAt = new Date(input.membership.applied_at).toISOString();
+  // User may not have joined yet
+  const joinedAt = input.membership.joined_at ? new Date(input.membership.joined_at).toISOString() : undefined;
+
   return membershipDetailSchema.parse({
     ...base,
     applicationMessage: input.membership.application_message,
-    appliedAt: input.membership.applied_at,
-    joinedAt: input.membership.joined_at ?? undefined,
-    updatedAt: input.membership.updated_at,
+    appliedAt: appliedAt,
+    joinedAt: joinedAt,
+    updatedAt: updatedAt,
     approvedBy: input.approvedByProfile
       ? toUserSummary(input.approvedByProfile)
       : null,

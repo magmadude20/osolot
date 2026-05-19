@@ -41,7 +41,7 @@ export default function PostDetailScreen() {
     }, [load]),
   );
 
-  async function onDelete() {
+  function onDelete() {
     if (!accessToken || !id) return;
     Alert.alert("Delete post?", "This cannot be undone.", [
       { text: "Cancel", style: "cancel" },
@@ -107,19 +107,19 @@ export default function PostDetailScreen() {
 
       <Pressable
         style={styles.button}
-        onPress={() => Alert.alert("Coming soon", "Notifications coming soon.")}
+        onPress={() => { Alert.alert("Coming soon", "Notifications coming soon."); }}
       >
         <Text style={styles.buttonText}>Respond</Text>
       </Pressable>
 
       <Pressable
         style={styles.buttonSecondary}
-        onPress={() => router.push(`/(tabs)/posts/${id}/edit`)}
+        onPress={() => { router.push(`/(tabs)/posts/${id}/edit`); }}
       >
         <Text style={styles.buttonSecondaryText}>Edit</Text>
       </Pressable>
 
-      <Pressable style={styles.buttonDanger} onPress={() => void onDelete()}>
+      <Pressable style={styles.buttonDanger} onPress={onDelete}>
         <Text style={styles.buttonDangerText}>Delete</Text>
       </Pressable>
     </ScrollView>

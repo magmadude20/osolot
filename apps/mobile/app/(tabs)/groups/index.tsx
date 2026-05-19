@@ -60,14 +60,14 @@ export default function GroupsListScreen() {
             <GroupCard
               key={g.id}
               group={g}
-              onPress={() => router.push(`/(tabs)/groups/${g.id}`)}
+              onPress={() => { router.push(`/(tabs)/groups/${g.id}`); }}
             />
           ))
         )}
       </ScrollView>
       <Pressable
         style={styles.fab}
-        onPress={() => router.push("/(tabs)/groups/new")}
+        onPress={() => { router.push("/(tabs)/groups/new"); }}
       >
         <Text style={styles.fabText}>+</Text>
       </Pressable>

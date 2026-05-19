@@ -1,5 +1,5 @@
 import type { UserSummary } from "@osolot/shared";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Text } from "react-native";
 import { styles } from "../lib/styles";
 
 export function UserRow({

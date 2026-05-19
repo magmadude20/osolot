@@ -125,7 +125,7 @@ export default function GroupDetailScreen() {
           {role ? <Text style={styles.hint}>Role: {role}</Text> : null}
           <Pressable
             style={styles.buttonSecondary}
-            onPress={() => router.push(`/(tabs)/groups/${id}/membership`)}
+            onPress={() => { router.push(`/(tabs)/groups/${id}/membership`); }}
           >
             <Text style={styles.buttonSecondaryText}>Edit posts I share</Text>
           </Pressable>
@@ -141,7 +141,7 @@ export default function GroupDetailScreen() {
       ) : (
         <Pressable
           style={styles.button}
-          onPress={() => router.push(`/(tabs)/groups/${id}/join`)}
+          onPress={() => { router.push(`/(tabs)/groups/${id}/join`); }}
         >
           <Text style={styles.buttonText}>Join group</Text>
         </Pressable>
@@ -151,7 +151,7 @@ export default function GroupDetailScreen() {
         <>
           <Pressable
             style={styles.buttonSecondary}
-            onPress={() => router.push(`/(tabs)/groups/${id}/edit`)}
+            onPress={() => { router.push(`/(tabs)/groups/${id}/edit`); }}
           >
             <Text style={styles.buttonSecondaryText}>Edit group settings</Text>
           </Pressable>
@@ -246,7 +246,7 @@ export default function GroupDetailScreen() {
           <PostCard
             key={p.id}
             post={p}
-            onPress={() => router.push(`/(tabs)/posts/${p.id}`)}
+            onPress={() => { router.push(`/(tabs)/posts/${p.id}`); }}
           />
         ))
       )}

@@ -15,11 +15,11 @@ export function assertWorkerConfigured(): void {
 
 function apiErrorMessage(json: unknown, fallback: string): string {
   if (json && typeof json === "object" && "message" in json) {
-    const msg = (json as { message: unknown }).message;
+    const msg = (json).message;
     if (typeof msg === "string") return msg;
   }
   if (json && typeof json === "object" && "error" in json) {
-    const err = (json as { error: unknown }).error;
+    const err = (json).error;
     if (typeof err === "string") return err;
   }
   return fallback;
@@ -62,7 +62,9 @@ export async function parseJson<T>(
 ): Promise<T> {
   const json: unknown = await res.json().catch(() => null);
   if (!res.ok) {
-    throw new Error(apiErrorMessage(json, res.statusText) || `HTTP ${res.status}`);
+    throw new Error(
+      apiErrorMessage(json, fallback) || res.statusText || `HTTP ${String(res.status)}`,
+    );
   }
   const parsed = schema.safeParse(json);
   if (!parsed.success) {

@@ -45,7 +45,7 @@ export function SharingForm({
         <Text style={styles.label}>Public</Text>
         <Switch
           value={value.public}
-          onValueChange={(public_) => onChange({ ...value, public: public_ })}
+          onValueChange={(public_) => { onChange({ ...value, public: public_ }); }}
         />
       </View>
       <View style={styles.row}>
@@ -53,7 +53,7 @@ export function SharingForm({
         <Switch
           value={value.shareWithNewGroupsDefault}
           onValueChange={(shareWithNewGroupsDefault) =>
-            onChange({ ...value, shareWithNewGroupsDefault })
+            { onChange({ ...value, shareWithNewGroupsDefault }); }
           }
         />
       </View>
@@ -62,7 +62,7 @@ export function SharingForm({
         <Switch
           value={value.shareWithNewFriendsDefault}
           onValueChange={(shareWithNewFriendsDefault) =>
-            onChange({ ...value, shareWithNewFriendsDefault })
+            { onChange({ ...value, shareWithNewFriendsDefault }); }
           }
         />
       </View>
@@ -78,7 +78,7 @@ export function SharingForm({
             <Pressable
               key={id}
               style={styles.checkRow}
-              onPress={() => toggleGroup(id)}
+              onPress={() => { toggleGroup(id); }}
             >
               <Text>{checked ? "[x]" : "[ ]"}</Text>
               <Text style={{ flex: 1 }}>{m.group.name}</Text>
@@ -97,7 +97,7 @@ export function SharingForm({
             <Pressable
               key={f.username}
               style={styles.checkRow}
-              onPress={() => toggleFriend(f.username)}
+              onPress={() => { toggleFriend(f.username); }}
             >
               <Text>{checked ? "[x]" : "[ ]"}</Text>
               <Text style={{ flex: 1 }}>@{f.username}</Text>

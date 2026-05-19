@@ -52,7 +52,7 @@ export default function PostsFeedScreen() {
       <View style={[styles.segmentRow, { padding: 16, paddingBottom: 0 }]}>
         <Pressable
           style={[styles.segment, tab === "feed" && styles.segmentActive]}
-          onPress={() => setTab("feed")}
+          onPress={() => { setTab("feed"); }}
         >
           <Text style={[styles.segmentText, tab === "feed" && styles.segmentTextActive]}>
             Feed
@@ -60,7 +60,7 @@ export default function PostsFeedScreen() {
         </Pressable>
         <Pressable
           style={[styles.segment, tab === "mine" && styles.segmentActive]}
-          onPress={() => setTab("mine")}
+          onPress={() => { setTab("mine"); }}
         >
           <Text style={[styles.segmentText, tab === "mine" && styles.segmentTextActive]}>
             Mine
@@ -84,7 +84,7 @@ export default function PostsFeedScreen() {
             <PostCard
               key={p.id}
               post={p}
-              onPress={() => router.push(`/(tabs)/posts/${p.id}`)}
+              onPress={() => { router.push(`/(tabs)/posts/${p.id}`); }}
             />
           ))
         )}
@@ -92,7 +92,7 @@ export default function PostsFeedScreen() {
 
       <Pressable
         style={styles.fab}
-        onPress={() => router.push("/(tabs)/posts/new")}
+        onPress={() => { router.push("/(tabs)/posts/new"); }}
       >
         <Text style={styles.fabText}>+</Text>
       </Pressable>

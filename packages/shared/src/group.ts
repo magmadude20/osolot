@@ -9,7 +9,7 @@ import {
 export const descriptionSchema = z.string().max(10000);
 
 export const groupSummarySchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string(),
   description: descriptionSchema,
   visibility: groupVisibilitySchema,

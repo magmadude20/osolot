@@ -14,7 +14,9 @@ export async function setPostSharedGroups(
     .delete()
     .eq("post_id", postId);
 
-  if (groupIds.length === 0) return;
+  if (groupIds.length === 0) {
+    return;
+  }
 
   const uniqueIds = [...new Set(groupIds)];
   const { data, error } = await supabase

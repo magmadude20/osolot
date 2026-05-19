@@ -1,26 +1,26 @@
+import { zValidator } from "@hono/zod-validator";
 import {
   createPostBodySchema,
   postIdParamSchema,
   postSettingsSchema,
 } from "@osolot/shared";
-import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
+import type { PostUpdate } from "../../supabase-types/table-types";
 import {
   buildPostDetail,
   toMyPostSummary,
   toPostSummary,
 } from "../builders/post";
 import type { AppBindings, OptionalAppVariables } from "../env";
-import type { PostUpdate } from "../../supabase-types/table-types";
 import { requireEmailVerified } from "../lib/auth-user";
 import { throwOnDbError } from "../lib/db-error";
-import { messageResponse } from "../lib/responses";
 import {
   fetchOwnedPosts,
   fetchVisiblePostById,
   fetchVisiblePosts,
 } from "../lib/permissions/post";
+import { messageResponse } from "../lib/responses";
 import {
   loadPostSharingTargets,
   setPostSharedFriends,
@@ -104,7 +104,10 @@ posts.post("/", requireAuth, zValidator("json", createPostBodySchema), async (c)
     )
     .single();
 
-  if (error) throwOnDbError(error);
+  if (error) {
+    console.error(error);
+    throwOnDbError(error);
+  }
 
   await setPostSharedGroups(supabase, userId, post.id, data.sharedGroupIds);
   await setPostSharedFriends(

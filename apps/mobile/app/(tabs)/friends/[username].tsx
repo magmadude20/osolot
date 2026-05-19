@@ -168,7 +168,7 @@ export default function UserProfileScreen() {
         <>
           <Pressable
             style={styles.buttonSecondary}
-            onPress={() => setShowSharePicker((v) => !v)}
+            onPress={() => { setShowSharePicker((v) => !v); }}
           >
             <Text style={styles.buttonSecondaryText}>
               {showSharePicker ? "Hide" : "Edit"} posts I share with them
@@ -197,7 +197,7 @@ export default function UserProfileScreen() {
           <GroupCard
             key={g.id}
             group={g}
-            onPress={() => router.push(`/(tabs)/groups/${g.id}`)}
+            onPress={() => { router.push(`/(tabs)/groups/${g.id}`); }}
           />
         ))
       )}
@@ -211,7 +211,7 @@ export default function UserProfileScreen() {
             key={u.username}
             user={u}
             onPress={() =>
-              router.push(`/(tabs)/friends/${encodeURIComponent(u.username)}`)
+              { router.push(`/(tabs)/friends/${encodeURIComponent(u.username)}`); }
             }
           />
         ))
@@ -225,7 +225,7 @@ export default function UserProfileScreen() {
           <PostCard
             key={p.id}
             post={p}
-            onPress={() => router.push(`/(tabs)/posts/${p.id}`)}
+            onPress={() => { router.push(`/(tabs)/posts/${p.id}`); }}
           />
         ))
       )}

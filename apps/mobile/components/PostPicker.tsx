@@ -53,7 +53,7 @@ export function PostPicker({
           <Pressable
             key={p.id}
             style={styles.checkRow}
-            onPress={() => toggle(p.id)}
+            onPress={() => { toggle(p.id); }}
           >
             <Text>{checked ? "[x]" : "[ ]"}</Text>
             <Text style={{ flex: 1 }}>{p.title}</Text>

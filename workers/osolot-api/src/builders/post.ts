@@ -57,10 +57,13 @@ export function buildPostDetail(input: {
         })
       : undefined;
 
+  const createdAt = new Date(input.post.created_at).toISOString();
+  const updatedAt = new Date(input.post.updated_at).toISOString();
+
   return postDetailSchema.parse({
     id: input.post.id,
-    createdAt: input.post.created_at,
-    updatedAt: input.post.updated_at,
+    createdAt,
+    updatedAt,
     type: postTypeSchema.parse(input.post.type),
     title: input.post.title,
     description: input.post.description,

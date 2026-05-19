@@ -95,7 +95,7 @@ export default function FriendsIndexScreen() {
             user={u}
             subtitle="pending_received"
             onPress={() =>
-              router.push(`/(tabs)/friends/${encodeURIComponent(u.username)}`)
+              { router.push(`/(tabs)/friends/${encodeURIComponent(u.username)}`); }
             }
           />
         ))
@@ -110,7 +110,7 @@ export default function FriendsIndexScreen() {
             key={u.username}
             user={u}
             onPress={() =>
-              router.push(`/(tabs)/friends/${encodeURIComponent(u.username)}`)
+              { router.push(`/(tabs)/friends/${encodeURIComponent(u.username)}`); }
             }
           />
         ))

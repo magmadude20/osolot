@@ -17,11 +17,14 @@ export default defineConfig(
       "**/*.config.js",
       "**/metro.config.js",
       "**/babel.config.js",
+      "apps/mobile/index.js",
+      "workers/osolot-api/supabase-types/generated-types.d.ts",
     ],
   },
   eslint.configs.recommended,
   {
     files: ["**/*.{ts,tsx}"],
+    ignores: ["**/*.test.ts", "packages/shared/vitest.config.ts"],
     extends: [
       tseslint.configs.strictTypeChecked,
       tseslint.configs.stylisticTypeChecked,

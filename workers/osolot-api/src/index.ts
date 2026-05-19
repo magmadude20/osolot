@@ -1,13 +1,14 @@
-import { z } from "zod";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
+import { z } from "zod";
 import type { AppBindings } from "./env";
 import { groups } from "./routes/groups";
 import { posts } from "./routes/posts";
 import { users } from "./routes/users";
 
-const app = new Hono<{ Bindings: AppBindings }>();
+// `{ strict: false }` so that /posts and /posts/ are handled the same.
+const app = new Hono<{ Bindings: AppBindings }>({ strict: false });
 
 app.use(
   "*",
@@ -31,7 +32,7 @@ app.onError((err, c) => {
   }
   if (err instanceof z.ZodError) {
     return c.json(
-      { error: "validation_error", details: err.flatten() },
+      { error: "validation_error", details: z.flattenError(err) },
       400,
     );
   }

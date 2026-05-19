@@ -22,7 +22,7 @@ export const postSharingDetailSchema = postSharingSummarySchema.extend({
 export type PostSharingDetail = z.infer<typeof postSharingDetailSchema>;
 
 export const postSummarySchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   type: postTypeSchema,
   title: postTitleSchema,
   owner: userSummarySchema,
@@ -32,9 +32,9 @@ export const postSummarySchema = z.object({
 export type PostSummary = z.infer<typeof postSummarySchema>;
 
 export const postDetailSchema = z.object({
-  id: z.string().uuid(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  id: z.uuid(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
   type: postTypeSchema,
   title: postTitleSchema,
   description: postDescriptionSchema,
@@ -51,7 +51,7 @@ export const postSettingsSchema = z
     description: postDescriptionSchema.optional(),
     public: z.boolean().optional(),
     shareWithNewGroupsDefault: z.boolean().optional(),
-    sharedGroupIds: z.array(z.string().uuid()).nullable().optional(),
+    sharedGroupIds: z.array(z.uuid()).nullable().optional(),
     shareWithNewFriendsDefault: z.boolean().optional(),
     sharedFriendUsernames: z.array(z.string()).nullable().optional(),
   })
@@ -67,7 +67,7 @@ export const createPostBodySchema = z
     public: z.boolean().default(false),
     shareWithNewGroupsDefault: z.boolean().default(true),
     shareWithNewFriendsDefault: z.boolean().default(true),
-    sharedGroupIds: z.array(z.string().uuid()).default([]),
+    sharedGroupIds: z.array(z.uuid()).default([]),
     sharedFriendUsernames: z.array(z.string()).default([]),
   })
   .strict();
