@@ -3,5 +3,9 @@
   "compilerOptions": {
     "strict": true
   },
-  "include": ["**/*.ts", "**/*.tsx", "env.d.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "env.d.ts"
+, "index.js"  ]
 }
