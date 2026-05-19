@@ -58,3 +58,18 @@ export const postSettingsSchema = z
   .strict();
 
 export type PostSettings = z.infer<typeof postSettingsSchema>;
+
+export const createPostBodySchema = z
+  .object({
+    type: postTypeSchema,
+    title: postTitleSchema,
+    description: postDescriptionSchema,
+    public: z.boolean().default(false),
+    shareWithNewGroupsDefault: z.boolean().default(true),
+    shareWithNewFriendsDefault: z.boolean().default(true),
+    sharedGroupIds: z.array(z.string().uuid()).default([]),
+    sharedFriendUsernames: z.array(z.string()).default([]),
+  })
+  .strict();
+
+export type CreatePostBody = z.infer<typeof createPostBodySchema>;

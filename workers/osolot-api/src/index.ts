@@ -3,6 +3,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import type { AppBindings } from "./env";
+import { groups } from "./routes/groups";
+import { posts } from "./routes/posts";
 import { users } from "./routes/users";
 
 const app = new Hono<{ Bindings: AppBindings }>();
@@ -11,13 +13,15 @@ app.use(
   "*",
   cors({
     origin: "*",
-    allowMethods: ["GET", "PUT", "DELETE", "OPTIONS"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     maxAge: 86400,
   }),
 );
 
 app.route("/users", users);
+app.route("/groups", groups);
+app.route("/posts", posts);
 
 app.notFound((c) => c.json({ error: "not_found" }, 404));
 

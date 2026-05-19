@@ -32,6 +32,18 @@ export const groupSettingsSchema = z
 
 export type GroupSettings = z.infer<typeof groupSettingsSchema>;
 
+export const createGroupBodySchema = z
+  .object({
+    name: z.string().min(1).max(255),
+    description: descriptionSchema.default(""),
+    visibility: groupVisibilitySchema.default("public"),
+    admissionType: groupAdmissionTypeSchema.default("open"),
+    applicationQuestion: z.string().max(10000).default(""),
+  })
+  .strict();
+
+export type CreateGroupBody = z.infer<typeof createGroupBodySchema>;
+
 import { membershipSummarySchema } from "./membership.js";
 import { postSummarySchema } from "./post.js";
 

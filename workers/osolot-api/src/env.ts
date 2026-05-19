@@ -11,4 +11,9 @@ export interface AppVariables {
   userId: string;
 }
 
+export interface OptionalAppVariables {
+  supabase: SupabaseClient<Database>;
+  userId: string | null;
+}
+
 export type AppBindings = Env;
